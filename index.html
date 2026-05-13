@@ -10,14 +10,9 @@
 
 <title>FCY Exposure Dashboard</title>
 
-<!-- TABLEAU -->
 <script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
 
 <style>
-
-/* ======================================================
-   GLOBAL
-====================================================== */
 
 html,
 body{
@@ -84,27 +79,18 @@ body{
 
 .header{
 
-    min-height:88px;
-
     padding:18px 22px;
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
 
     border-bottom:
         1px solid #edf2f7;
 
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
     flex-wrap:wrap;
 
     gap:14px;
-}
-
-.header-left{
-
-    display:flex;
-    flex-direction:column;
-    gap:6px;
 }
 
 .title{
@@ -120,6 +106,8 @@ body{
     font-size:13px;
 
     color:#64748b;
+
+    margin-top:4px;
 }
 
 /* ======================================================
@@ -130,24 +118,43 @@ body{
 
     display:flex;
     align-items:center;
-    gap:14px;
+    gap:12px;
 
     flex-wrap:wrap;
+}
+
+.control{
+
+    padding:11px 14px;
+
+    border-radius:12px;
+
+    border:
+        1px solid #dbe3ee;
+
+    background:white;
+
+    outline:none;
+
+    font-size:14px;
+    font-weight:600;
+
+    color:#0f172a;
 }
 
 /* ======================================================
    TOGGLE
 ====================================================== */
 
-.toggle-wrap{
+.toggle{
 
     display:flex;
 
     background:#f1f5f9;
 
-    padding:4px;
-
     border-radius:14px;
+
+    padding:4px;
 
     gap:4px;
 }
@@ -156,20 +163,20 @@ body{
 
     border:none;
 
-    padding:11px 18px;
+    background:transparent;
 
-    border-radius:12px;
+    padding:10px 16px;
+
+    border-radius:10px;
 
     cursor:pointer;
 
     font-size:13px;
     font-weight:700;
 
-    background:transparent;
-
     color:#475569;
 
-    transition:.2s ease;
+    transition:.2s;
 }
 
 .toggle-btn.active{
@@ -180,56 +187,6 @@ body{
 
     box-shadow:
         0 2px 8px rgba(37,99,235,.15);
-}
-
-/* ======================================================
-   TOP INPUT
-====================================================== */
-
-.top-wrap{
-
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.top-label{
-
-    font-size:13px;
-    font-weight:700;
-
-    color:#475569;
-}
-
-.top-input{
-
-    width:85px;
-
-    padding:11px 14px;
-
-    border-radius:14px;
-
-    border:
-        1px solid #dbe3ee;
-
-    background:white;
-
-    outline:none;
-
-    font-size:14px;
-    font-weight:700;
-
-    color:#0f172a;
-
-    transition:.2s;
-}
-
-.top-input:focus{
-
-    border-color:#2563eb;
-
-    box-shadow:
-        0 0 0 4px rgba(37,99,235,.08);
 }
 
 /* ======================================================
@@ -252,16 +209,12 @@ table{
     table-layout:fixed;
 }
 
-/* ======================================================
-   HEADERS
-====================================================== */
-
 thead{
 
     position:sticky;
     top:0;
 
-    z-index:99;
+    z-index:10;
 }
 
 thead tr{
@@ -281,19 +234,9 @@ th{
     color:#475569;
 
     text-transform:uppercase;
-    letter-spacing:.05em;
 
     border-bottom:
         1px solid #e2e8f0;
-}
-
-/* ======================================================
-   ROWS
-====================================================== */
-
-tbody tr{
-
-    transition:.15s ease;
 }
 
 tbody tr:nth-child(even){
@@ -313,40 +256,23 @@ td{
     border-bottom:
         1px solid #f1f5f9;
 
-    color:#0f172a;
-
     font-size:14px;
 
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    color:#0f172a;
 }
-
-/* ======================================================
-   NUMERIC
-====================================================== */
 
 .num{
 
     text-align:right;
 
     font-weight:700;
-
-    font-variant-numeric:
-        tabular-nums;
 }
-
-/* ======================================================
-   BADGE
-====================================================== */
 
 .badge{
 
     display:inline-flex;
-    align-items:center;
-    justify-content:center;
 
-    padding:7px 12px;
+    padding:6px 12px;
 
     border-radius:999px;
 
@@ -356,28 +282,6 @@ td{
 
     font-size:12px;
     font-weight:700;
-}
-
-/* ======================================================
-   SCROLLBAR
-====================================================== */
-
-::-webkit-scrollbar{
-
-    width:10px;
-    height:10px;
-}
-
-::-webkit-scrollbar-thumb{
-
-    background:#cbd5e1;
-
-    border-radius:20px;
-}
-
-::-webkit-scrollbar-track{
-
-    background:#f8fafc;
 }
 
 </style>
@@ -390,13 +294,11 @@ td{
 
     <div class="card">
 
-        <!-- =========================================
-             HEADER
-        ========================================== -->
+        <!-- HEADER -->
 
         <div class="header">
 
-            <div class="header-left">
+            <div>
 
                 <div class="title">
                     FCY Exposure Dashboard
@@ -411,21 +313,26 @@ td{
 
             </div>
 
-            <!-- =====================================
-                 TOOLBAR
-            ====================================== -->
+            <!-- TOOLBAR -->
 
             <div class="toolbar">
 
-                <!-- TOGGLE -->
+                <!-- WORKSHEET -->
 
-                <div class="toggle-wrap">
+                <select id="worksheetSelect"
+                        class="control">
+
+                </select>
+
+                <!-- MODE -->
+
+                <div class="toggle">
 
                     <button
                         id="branchBtn"
                         class="toggle-btn active">
 
-                        Branch Only
+                        Branch
 
                     </button>
 
@@ -441,29 +348,19 @@ td{
 
                 <!-- TOP N -->
 
-                <div class="top-wrap">
-
-                    <div class="top-label">
-                        Top N
-                    </div>
-
-                    <input
-                        type="number"
-                        id="topN"
-                        class="top-input"
-                        value="10"
-                        min="1"
-                    />
-
-                </div>
+                <input
+                    type="number"
+                    id="topN"
+                    class="control"
+                    value="10"
+                    min="1"
+                />
 
             </div>
 
         </div>
 
-        <!-- =========================================
-             TABLE
-        ========================================== -->
+        <!-- TABLE -->
 
         <div class="table-container">
 
@@ -517,6 +414,7 @@ td{
    VARIABLES
 ====================================================== */
 
+let dashboard;
 let worksheet;
 
 let mode = 'branch';
@@ -540,24 +438,53 @@ function formatNumber(v){
 }
 
 /* ======================================================
+   LOAD WORKSHEETS
+====================================================== */
+
+function loadWorksheetSelector(){
+
+    const select =
+        document.getElementById(
+            'worksheetSelect'
+        );
+
+    select.innerHTML = '';
+
+    dashboard.worksheets.forEach(ws => {
+
+        const option =
+            document.createElement('option');
+
+        option.value = ws.name;
+        option.textContent = ws.name;
+
+        select.appendChild(option);
+
+    });
+
+    worksheet =
+        dashboard.worksheets[0];
+}
+
+/* ======================================================
    GET DATA
 ====================================================== */
 
 async function getData(){
 
-    const summaryData =
+    const summary =
         await worksheet.getSummaryDataAsync();
 
-    const columns =
-        summaryData.columns.map(c => c.fieldName);
+    const cols =
+        summary.columns.map(c => c.fieldName);
 
-    return summaryData.data.map(row => {
+    return summary.data.map(r => {
 
         let obj = {};
 
-        row.forEach((cell, i) => {
+        r.forEach((cell, i) => {
 
-            obj[columns[i]] = cell;
+            obj[cols[i]] = cell;
 
         });
 
@@ -566,7 +493,7 @@ async function getData(){
 }
 
 /* ======================================================
-   PROCESS DATA
+   PROCESS
 ====================================================== */
 
 function processData(data){
@@ -635,7 +562,6 @@ function processData(data){
                 currency,
                 fcy:0,
                 lkr:0
-
             };
         }
 
@@ -667,50 +593,31 @@ function render(rows){
 
     tbody.innerHTML = '';
 
-    /* SHOW/HIDE */
+    const showCurrency =
+        mode === 'branchCurrency';
 
     document
         .getElementById('currencyHeader')
         .style.display =
 
-        mode === 'branch'
-            ? 'none'
-            : '';
+        showCurrency ? '' : 'none';
 
     document
         .getElementById('fcyHeader')
         .style.display =
 
-        mode === 'branch'
-            ? 'none'
-            : '';
+        showCurrency ? '' : 'none';
 
     rows.forEach(r => {
 
         const tr =
             document.createElement('tr');
 
-        if(mode === 'branch'){
+        if(showCurrency){
 
             tr.innerHTML = `
 
-                <td>
-                    ${r.branch}
-                </td>
-
-                <td class="num">
-                    ${formatNumber(r.lkr)}
-                </td>
-
-            `;
-
-        }else{
-
-            tr.innerHTML = `
-
-                <td>
-                    ${r.branch}
-                </td>
+                <td>${r.branch}</td>
 
                 <td>
                     <span class="badge">
@@ -725,7 +632,17 @@ function render(rows){
                 <td class="num">
                     ${formatNumber(r.lkr)}
                 </td>
+            `;
 
+        }else{
+
+            tr.innerHTML = `
+
+                <td>${r.branch}</td>
+
+                <td class="num">
+                    ${formatNumber(r.lkr)}
+                </td>
             `;
         }
 
@@ -759,7 +676,7 @@ async function update(){
 }
 
 /* ======================================================
-   TOGGLE UI
+   MODE UI
 ====================================================== */
 
 function setMode(newMode){
@@ -796,63 +713,67 @@ function setMode(newMode){
 
 window.onload = async function(){
 
-    try{
+    await tableau.extensions.initializeAsync();
 
-        await tableau.extensions.initializeAsync();
+    dashboard =
+        tableau.extensions
+        .dashboardContent
+        .dashboard;
 
-        const dashboard =
-            tableau.extensions.dashboardContent.dashboard;
+    loadWorksheetSelector();
 
-        worksheet =
-            dashboard.worksheets[0];
+    /* WORKSHEET CHANGE */
 
-        worksheet.addEventListener(
+    document
+        .getElementById('worksheetSelect')
+        .addEventListener(
 
-            tableau.TableauEventType.SummaryDataChanged,
+            'change',
+
+            e => {
+
+                worksheet =
+                    dashboard.worksheets.find(
+
+                        w => w.name === e.target.value
+                    );
+
+                update();
+            }
+        );
+
+    /* TOP N */
+
+    document
+        .getElementById('topN')
+        .addEventListener(
+
+            'input',
 
             update
         );
 
-        /* TOP N */
+    /* MODE */
 
-        document
-            .getElementById('topN')
-            .addEventListener(
+    document
+        .getElementById('branchBtn')
+        .addEventListener(
 
-                'input',
+            'click',
 
-                update
-            );
-
-        /* MODE BUTTONS */
-
-        document
-            .getElementById('branchBtn')
-            .addEventListener(
-
-                'click',
-
-                () => setMode('branch')
-            );
-
-        document
-            .getElementById('branchCurrencyBtn')
-            .addEventListener(
-
-                'click',
-
-                () => setMode('branchCurrency')
-            );
-
-        update();
-
-    }catch(error){
-
-        console.error(
-            "Initialization Error:",
-            error
+            () => setMode('branch')
         );
-    }
+
+    document
+        .getElementById('branchCurrencyBtn')
+        .addEventListener(
+
+            'click',
+
+            () => setMode('branchCurrency')
+        );
+
+    update();
 };
 
 </script>
