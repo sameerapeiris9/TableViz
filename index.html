@@ -334,9 +334,7 @@ tbody tr:hover{
 
     <div class="card">
 
-        <!-- =========================================
-             HEADER
-        ========================================== -->
+        <!-- HEADER -->
 
         <div class="header">
 
@@ -392,9 +390,7 @@ tbody tr:hover{
 
         </div>
 
-        <!-- =========================================
-             TABLE
-        ========================================== -->
+        <!-- TABLE -->
 
         <div class="table-wrap">
 
@@ -409,21 +405,21 @@ tbody tr:hover{
                         </th>
 
                         <th id="currencyHeader"
-                            style="width:20%">
+                            style="width:20%;display:none">
 
                             Currency
 
                         </th>
 
                         <th id="fcyHeader"
-                            style="width:20%">
+                            style="width:20%;display:none">
 
                             FCY
 
                         </th>
 
                         <th style="width:20%">
-                            LKR Mn
+                            LKR MN
                         </th>
 
                     </tr>
@@ -478,15 +474,17 @@ async function loadData(){
 
     try{
 
-        const data =
-            await worksheet.getUnderlyingDataAsync();
+        const table =
+            await worksheet.getSummaryDataAsync();
 
-        console.log(data);
+        console.log("TABLE:", table);
 
         const cols =
-            data.columns.map(c => c.fieldName);
+            table.columns.map(c =>
+                c.fieldName
+            );
 
-        console.log(cols);
+        console.log("COLUMNS:", cols);
 
         const branchIndex =
             cols.findIndex(c =>
@@ -514,38 +512,33 @@ async function loadData(){
             currencyIndex,
             fcyIndex,
             lkrIndex
-
         });
 
         const grouped = {};
 
-        data.data.forEach(r => {
+        table.data.forEach(r => {
 
             const branch =
-                r[branchIndex]
-                    ?.formattedValue || '';
+                branchIndex >= 0
+                    ? r[branchIndex]?.formattedValue || ''
+                    : '';
 
             const currency =
                 currencyIndex >= 0
-                    ? (
-                        r[currencyIndex]
-                        ?.formattedValue || ''
-                    )
+                    ? r[currencyIndex]?.formattedValue || ''
                     : '';
 
             const fcy =
                 fcyIndex >= 0
                     ? Number(
-                        r[fcyIndex]
-                        ?.value || 0
+                        r[fcyIndex]?.value || 0
                     )
                     : 0;
 
             const lkr =
                 lkrIndex >= 0
                     ? Number(
-                        r[lkrIndex]
-                        ?.value || 0
+                        r[lkrIndex]?.value || 0
                     )
                     : 0;
 
@@ -653,6 +646,9 @@ function render(rows){
 
         `;
 
+        document.getElementById('rowCount').innerText =
+            `0 Rows`;
+
         return;
     }
 
@@ -693,9 +689,9 @@ function render(rows){
                     ${r.branch}
                 </td>
 
-                <td></td>
+                <td style="display:none"></td>
 
-                <td></td>
+                <td style="display:none"></td>
 
                 <td class="num">
                     ${format(r.lkr)}
@@ -712,7 +708,7 @@ function render(rows){
 }
 
 /* ======================================================
-   MODE SWITCH
+   MODE
 ====================================================== */
 
 function setMode(newMode){
@@ -753,13 +749,21 @@ window.onload = async function(){
 
         await tableau.extensions.initializeAsync();
 
-        worksheet =
+        const dashboard =
             tableau.extensions
-            .worksheetContent
-            .worksheet;
+            .dashboardContent
+            .dashboard;
+
+        console.log("DASHBOARD:", dashboard);
+
+        worksheet =
+            dashboard.worksheets.find(
+
+                w => w.name === 'FCY_SOURCE'
+            );
 
         console.log(
-            "WORKSHEET:",
+            "FOUND:",
             worksheet.name
         );
 
@@ -791,6 +795,14 @@ window.onload = async function(){
 
                 () => setMode('branchCurrency')
             );
+
+        worksheet.addEventListener(
+
+            tableau.TableauEventType
+                .SummaryDataChanged,
+
+            loadData
+        );
 
         loadData();
 
