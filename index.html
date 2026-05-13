@@ -8,7 +8,7 @@
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0"/>
 
-<title>Top FCY Exposure Table</title>
+<title>FCY Exposure Dashboard</title>
 
 <!-- TABLEAU -->
 <script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
@@ -64,7 +64,7 @@ body{
 
     background:white;
 
-    border-radius:20px;
+    border-radius:24px;
 
     overflow:hidden;
 
@@ -72,7 +72,10 @@ body{
         1px solid #e2e8f0;
 
     box-shadow:
-        0 6px 24px rgba(15,23,42,.06);
+        0 10px 30px rgba(15,23,42,.06);
+
+    display:flex;
+    flex-direction:column;
 }
 
 /* ======================================================
@@ -81,9 +84,9 @@ body{
 
 .header{
 
-    height:76px;
+    min-height:88px;
 
-    padding:0 22px;
+    padding:18px 22px;
 
     display:flex;
     align-items:center;
@@ -91,24 +94,28 @@ body{
 
     border-bottom:
         1px solid #edf2f7;
+
+    flex-wrap:wrap;
+
+    gap:14px;
 }
 
 .header-left{
 
     display:flex;
     flex-direction:column;
-    gap:4px;
+    gap:6px;
 }
 
 .title{
 
-    font-size:18px;
+    font-size:20px;
     font-weight:700;
 
     color:#0f172a;
 }
 
-.count{
+.subtitle{
 
     font-size:13px;
 
@@ -123,24 +130,84 @@ body{
 
     display:flex;
     align-items:center;
+    gap:14px;
+
+    flex-wrap:wrap;
+}
+
+/* ======================================================
+   TOGGLE
+====================================================== */
+
+.toggle-wrap{
+
+    display:flex;
+
+    background:#f1f5f9;
+
+    padding:4px;
+
+    border-radius:14px;
+
+    gap:4px;
+}
+
+.toggle-btn{
+
+    border:none;
+
+    padding:11px 18px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-size:13px;
+    font-weight:700;
+
+    background:transparent;
+
+    color:#475569;
+
+    transition:.2s ease;
+}
+
+.toggle-btn.active{
+
+    background:white;
+
+    color:#2563eb;
+
+    box-shadow:
+        0 2px 8px rgba(37,99,235,.15);
+}
+
+/* ======================================================
+   TOP INPUT
+====================================================== */
+
+.top-wrap{
+
+    display:flex;
+    align-items:center;
     gap:10px;
 }
 
-.toolbar-label{
+.top-label{
 
     font-size:13px;
-    font-weight:600;
+    font-weight:700;
 
     color:#475569;
 }
 
 .top-input{
 
-    width:80px;
+    width:85px;
 
-    padding:10px 12px;
+    padding:11px 14px;
 
-    border-radius:12px;
+    border-radius:14px;
 
     border:
         1px solid #dbe3ee;
@@ -150,7 +217,9 @@ body{
     outline:none;
 
     font-size:14px;
-    font-weight:600;
+    font-weight:700;
+
+    color:#0f172a;
 
     transition:.2s;
 }
@@ -169,7 +238,7 @@ body{
 
 .table-container{
 
-    height:calc(100% - 76px);
+    flex:1;
 
     overflow:auto;
 }
@@ -184,7 +253,7 @@ table{
 }
 
 /* ======================================================
-   HEADER ROW
+   HEADERS
 ====================================================== */
 
 thead{
@@ -207,39 +276,39 @@ th{
     text-align:left;
 
     font-size:12px;
-    font-weight:700;
+    font-weight:800;
 
     color:#475569;
 
     text-transform:uppercase;
-    letter-spacing:.04em;
+    letter-spacing:.05em;
 
     border-bottom:
         1px solid #e2e8f0;
 }
 
 /* ======================================================
-   BODY
+   ROWS
 ====================================================== */
 
 tbody tr{
 
-    transition:background .15s ease;
+    transition:.15s ease;
 }
 
 tbody tr:nth-child(even){
 
-    background:#fafcff;
+    background:#fbfdff;
 }
 
 tbody tr:hover{
 
-    background:#eff6ff;
+    background:#eef6ff;
 }
 
 td{
 
-    padding:15px 18px;
+    padding:16px 18px;
 
     border-bottom:
         1px solid #f1f5f9;
@@ -261,7 +330,7 @@ td{
 
     text-align:right;
 
-    font-weight:600;
+    font-weight:700;
 
     font-variant-numeric:
         tabular-nums;
@@ -277,7 +346,7 @@ td{
     align-items:center;
     justify-content:center;
 
-    padding:6px 12px;
+    padding:7px 12px;
 
     border-radius:999px;
 
@@ -299,16 +368,16 @@ td{
     height:10px;
 }
 
-::-webkit-scrollbar-track{
-
-    background:#f8fafc;
-}
-
 ::-webkit-scrollbar-thumb{
 
     background:#cbd5e1;
 
     border-radius:20px;
+}
+
+::-webkit-scrollbar-track{
+
+    background:#f8fafc;
 }
 
 </style>
@@ -330,31 +399,63 @@ td{
             <div class="header-left">
 
                 <div class="title">
-                    Top FCY Exposure Branches
+                    FCY Exposure Dashboard
                 </div>
 
-                <div class="count"
+                <div class="subtitle"
                      id="rowCount">
+
                     0 Rows
+
                 </div>
 
             </div>
 
-            <!-- TOP N -->
+            <!-- =====================================
+                 TOOLBAR
+            ====================================== -->
 
             <div class="toolbar">
 
-                <div class="toolbar-label">
-                    Top N
+                <!-- TOGGLE -->
+
+                <div class="toggle-wrap">
+
+                    <button
+                        id="branchBtn"
+                        class="toggle-btn active">
+
+                        Branch Only
+
+                    </button>
+
+                    <button
+                        id="branchCurrencyBtn"
+                        class="toggle-btn">
+
+                        Branch + Currency
+
+                    </button>
+
                 </div>
 
-                <input
-                    type="number"
-                    id="topN"
-                    class="top-input"
-                    value="10"
-                    min="1"
-                />
+                <!-- TOP N -->
+
+                <div class="top-wrap">
+
+                    <div class="top-label">
+                        Top N
+                    </div>
+
+                    <input
+                        type="number"
+                        id="topN"
+                        class="top-input"
+                        value="10"
+                        min="1"
+                    />
+
+                </div>
 
             </div>
 
@@ -372,19 +473,25 @@ td{
 
                     <tr>
 
-                        <th style="width:35%">
+                        <th style="width:40%">
                             Branch Name
                         </th>
 
-                        <th style="width:15%">
+                        <th id="currencyHeader"
+                            style="width:20%">
+
                             Currency
+
                         </th>
 
-                        <th style="width:25%">
+                        <th id="fcyHeader"
+                            style="width:20%">
+
                             FCY
+
                         </th>
 
-                        <th style="width:25%">
+                        <th style="width:20%">
                             LKR Mn
                         </th>
 
@@ -412,8 +519,10 @@ td{
 
 let worksheet;
 
+let mode = 'branch';
+
 /* ======================================================
-   FORMAT NUMBER
+   FORMAT
 ====================================================== */
 
 function formatNumber(v){
@@ -442,8 +551,6 @@ async function getData(){
     const columns =
         summaryData.columns.map(c => c.fieldName);
 
-    console.log("COLUMNS:", columns);
-
     return summaryData.data.map(row => {
 
         let obj = {};
@@ -471,8 +578,6 @@ function processData(data){
     const keys =
         Object.keys(data[0]);
 
-    console.log("FIELDS:", keys);
-
     const branchField =
         keys.find(k =>
             k.toLowerCase().includes('branch')
@@ -493,16 +598,7 @@ function processData(data){
             k.toLowerCase().includes('lkr')
         );
 
-    console.log({
-
-        branchField,
-        currencyField,
-        fcyField,
-        lkrField
-
-    });
-
-    let rows = [];
+    const grouped = {};
 
     data.forEach(d => {
 
@@ -526,22 +622,31 @@ function processData(data){
             ? Number(d[lkrField].nativeValue || 0)
             : 0;
 
-        rows.push({
+        const key =
+            mode === 'branchCurrency'
+            ? `${branch}|${currency}`
+            : branch;
 
-            branch,
-            currency,
-            fcy,
-            lkr
+        if(!grouped[key]){
 
-        });
+            grouped[key] = {
 
+                branch,
+                currency,
+                fcy:0,
+                lkr:0
+
+            };
+        }
+
+        grouped[key].fcy += fcy;
+        grouped[key].lkr += lkr;
     });
 
-    /* SORT */
+    let rows =
+        Object.values(grouped);
 
     rows.sort((a,b) => b.lkr - a.lkr);
-
-    /* TOP N */
 
     const topN =
         Number(
@@ -562,32 +667,67 @@ function render(rows){
 
     tbody.innerHTML = '';
 
+    /* SHOW/HIDE */
+
+    document
+        .getElementById('currencyHeader')
+        .style.display =
+
+        mode === 'branch'
+            ? 'none'
+            : '';
+
+    document
+        .getElementById('fcyHeader')
+        .style.display =
+
+        mode === 'branch'
+            ? 'none'
+            : '';
+
     rows.forEach(r => {
 
         const tr =
             document.createElement('tr');
 
-        tr.innerHTML = `
+        if(mode === 'branch'){
 
-            <td>
-                ${r.branch}
-            </td>
+            tr.innerHTML = `
 
-            <td>
-                <span class="badge">
-                    ${r.currency}
-                </span>
-            </td>
+                <td>
+                    ${r.branch}
+                </td>
 
-            <td class="num">
-                ${formatNumber(r.fcy)}
-            </td>
+                <td class="num">
+                    ${formatNumber(r.lkr)}
+                </td>
 
-            <td class="num">
-                ${formatNumber(r.lkr)}
-            </td>
+            `;
 
-        `;
+        }else{
+
+            tr.innerHTML = `
+
+                <td>
+                    ${r.branch}
+                </td>
+
+                <td>
+                    <span class="badge">
+                        ${r.currency}
+                    </span>
+                </td>
+
+                <td class="num">
+                    ${formatNumber(r.fcy)}
+                </td>
+
+                <td class="num">
+                    ${formatNumber(r.lkr)}
+                </td>
+
+            `;
+        }
 
         tbody.appendChild(tr);
     });
@@ -607,12 +747,8 @@ async function update(){
         const raw =
             await getData();
 
-        console.log("RAW:", raw);
-
         const rows =
             processData(raw);
-
-        console.log("ROWS:", rows);
 
         render(rows);
 
@@ -620,6 +756,38 @@ async function update(){
 
         console.error(error);
     }
+}
+
+/* ======================================================
+   TOGGLE UI
+====================================================== */
+
+function setMode(newMode){
+
+    mode = newMode;
+
+    document
+        .getElementById('branchBtn')
+        .classList.remove('active');
+
+    document
+        .getElementById('branchCurrencyBtn')
+        .classList.remove('active');
+
+    if(mode === 'branch'){
+
+        document
+            .getElementById('branchBtn')
+            .classList.add('active');
+
+    }else{
+
+        document
+            .getElementById('branchCurrencyBtn')
+            .classList.add('active');
+    }
+
+    update();
 }
 
 /* ======================================================
@@ -635,22 +803,8 @@ window.onload = async function(){
         const dashboard =
             tableau.extensions.dashboardContent.dashboard;
 
-        console.log(
-            "WORKSHEETS:",
-            dashboard.worksheets.map(w => w.name)
-        );
-
-        /* =========================================
-           PICK YOUR WORKSHEET
-        ========================================= */
-
         worksheet =
             dashboard.worksheets[0];
-
-        console.log(
-            "CONNECTED:",
-            worksheet.name
-        );
 
         worksheet.addEventListener(
 
@@ -658,6 +812,8 @@ window.onload = async function(){
 
             update
         );
+
+        /* TOP N */
 
         document
             .getElementById('topN')
@@ -668,12 +824,32 @@ window.onload = async function(){
                 update
             );
 
+        /* MODE BUTTONS */
+
+        document
+            .getElementById('branchBtn')
+            .addEventListener(
+
+                'click',
+
+                () => setMode('branch')
+            );
+
+        document
+            .getElementById('branchCurrencyBtn')
+            .addEventListener(
+
+                'click',
+
+                () => setMode('branchCurrency')
+            );
+
         update();
 
     }catch(error){
 
         console.error(
-            "INIT ERROR:",
+            "Initialization Error:",
             error
         );
     }
