@@ -371,8 +371,6 @@ td{
 
             <div class="toolbar">
 
-                <!-- TOGGLE -->
-
                 <div class="toggle">
 
                     <button
@@ -392,8 +390,6 @@ td{
                     </button>
 
                 </div>
-
-                <!-- TOP N -->
 
                 <input
                     type="number"
@@ -491,24 +487,23 @@ function formatNumber(v){
 
 async function getData(){
 
-    let rows = [];
+    try{
 
-    const reader =
-        await worksheet.getSummaryDataReaderAsync();
+        const summaryData =
+            await worksheet.getSummaryDataAsync();
 
-    const columns =
-        reader.columns.map(c => c.fieldName);
+        console.log("SUMMARY:", summaryData);
 
-    console.log("COLUMNS:", columns);
+        const columns =
+            summaryData.columns.map(c => c.fieldName);
 
-    for(let p=0; p<reader.pageCount; p++){
+        console.log("COLUMNS:", columns);
 
-        const page =
-            await reader.getPageAsync(p);
+        const rows = [];
 
-        page.data.forEach(r => {
+        summaryData.data.forEach(r => {
 
-            let obj = {};
+            const obj = {};
 
             r.forEach((cell, i) => {
 
@@ -527,13 +522,20 @@ async function getData(){
 
             rows.push(obj);
         });
+
+        console.log("ROWS:", rows);
+
+        return rows;
+
+    }catch(error){
+
+        console.error(
+            "DATA ERROR:",
+            error
+        );
+
+        return [];
     }
-
-    await reader.releaseAsync();
-
-    console.log("ROWS:", rows);
-
-    return rows;
 }
 
 /* ======================================================
@@ -557,25 +559,21 @@ function processData(data){
 
     const branchField =
         keys.find(k =>
-
             k.toLowerCase().includes('branch')
         );
 
     const currencyField =
         keys.find(k =>
-
             k.toLowerCase().includes('currency')
         );
 
     const fcyField =
         keys.find(k =>
-
             k.toLowerCase().includes('fcy')
         );
 
     const lkrField =
         keys.find(k =>
-
             k.toLowerCase().includes('lkr')
         );
 
@@ -590,10 +588,6 @@ function processData(data){
 
     if(!branchField || !lkrField){
 
-        console.error(
-            "Required fields missing"
-        );
-
         return [];
     }
 
@@ -601,52 +595,38 @@ function processData(data){
 
     data.forEach(d => {
 
-        const branchCell =
-            d[branchField];
-
-        const currencyCell =
-            d[currencyField];
-
-        const fcyCell =
-            d[fcyField];
-
-        const lkrCell =
-            d[lkrField];
-
         const branch =
-            branchCell
+            d[branchField]
                 ? (
-                    branchCell.formattedValue ??
-                    branchCell.value ??
+                    d[branchField].formattedValue ??
+                    d[branchField].value ??
                     ''
                 )
                 : '';
 
         const currency =
-            currencyCell
+            currencyField && d[currencyField]
                 ? (
-                    currencyCell.formattedValue ??
-                    currencyCell.value ??
+                    d[currencyField].formattedValue ??
+                    d[currencyField].value ??
                     ''
                 )
                 : '';
 
         const fcy =
-            fcyCell
+            fcyField && d[fcyField]
                 ? Number(
-
-                    fcyCell.nativeValue ??
-                    fcyCell.value ??
+                    d[fcyField].nativeValue ??
+                    d[fcyField].value ??
                     0
                 )
                 : 0;
 
         const lkr =
-            lkrCell
+            d[lkrField]
                 ? Number(
-
-                    lkrCell.nativeValue ??
-                    lkrCell.value ??
+                    d[lkrField].nativeValue ??
+                    d[lkrField].value ??
                     0
                 )
                 : 0;
@@ -681,10 +661,13 @@ function processData(data){
     let rows =
         Object.values(grouped);
 
-    rows.sort((a,b) =>
+    /* SORT */
 
+    rows.sort((a,b) =>
         b.lkr - a.lkr
     );
+
+    /* TOP N */
 
     const topN =
         Number(
@@ -693,8 +676,6 @@ function processData(data){
 
     rows =
         rows.slice(0, topN);
-
-    console.log("FINAL ROWS:", rows);
 
     return rows;
 }
@@ -788,6 +769,10 @@ function render(rows){
                     ${r.branch}
                 </td>
 
+                <td></td>
+
+                <td></td>
+
                 <td class="num">
                     ${formatNumber(r.lkr)}
                 </td>
@@ -817,6 +802,8 @@ async function update(){
 
         const rows =
             processData(raw);
+
+        console.log("FINAL:", rows);
 
         render(rows);
 
