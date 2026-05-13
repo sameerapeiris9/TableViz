@@ -10,14 +10,21 @@
 
 <title>FCY Exposure Dashboard</title>
 
+<!-- TABLEAU -->
 <script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
 
 <style>
+
+/* ======================================================
+   GLOBAL
+====================================================== */
 
 html,
 body{
 
     margin:0;
+    padding:0;
+
     width:100%;
     height:100%;
 
@@ -28,8 +35,13 @@ body{
     font-family:
         Inter,
         Segoe UI,
+        Arial,
         sans-serif;
 }
+
+/* ======================================================
+   WRAPPER
+====================================================== */
 
 .wrapper{
 
@@ -40,6 +52,10 @@ body{
 
     box-sizing:border-box;
 }
+
+/* ======================================================
+   CARD
+====================================================== */
 
 .card{
 
@@ -52,26 +68,40 @@ body{
 
     overflow:hidden;
 
-    box-shadow:
-        0 10px 30px rgba(15,23,42,.06);
-
     border:
         1px solid #e2e8f0;
+
+    box-shadow:
+        0 10px 30px rgba(15,23,42,.06);
 
     display:flex;
     flex-direction:column;
 }
 
+/* ======================================================
+   HEADER
+====================================================== */
+
 .header{
 
-    padding:18px 24px;
+    padding:20px 24px;
+
+    border-bottom:
+        1px solid #edf2f7;
 
     display:flex;
     justify-content:space-between;
     align-items:center;
 
-    border-bottom:
-        1px solid #edf2f7;
+    gap:16px;
+
+    flex-wrap:wrap;
+}
+
+.header-left{
+
+    display:flex;
+    flex-direction:column;
 }
 
 .title{
@@ -84,18 +114,27 @@ body{
 
 .subtitle{
 
-    margin-top:4px;
+    margin-top:6px;
 
     font-size:13px;
 
     color:#64748b;
 }
 
+/* ======================================================
+   TOOLBAR
+====================================================== */
+
 .toolbar{
 
     display:flex;
+    align-items:center;
     gap:12px;
 }
+
+/* ======================================================
+   TOGGLE
+====================================================== */
 
 .toggle{
 
@@ -106,6 +145,8 @@ body{
     border-radius:14px;
 
     padding:4px;
+
+    gap:4px;
 }
 
 .toggle button{
@@ -120,9 +161,12 @@ body{
 
     cursor:pointer;
 
+    font-size:14px;
     font-weight:700;
 
     color:#475569;
+
+    transition:.2s;
 }
 
 .toggle button.active{
@@ -135,6 +179,10 @@ body{
         0 2px 8px rgba(37,99,235,.15);
 }
 
+/* ======================================================
+   INPUT
+====================================================== */
+
 .topN{
 
     width:80px;
@@ -146,8 +194,25 @@ body{
     border:
         1px solid #dbe3ee;
 
+    background:white;
+
+    outline:none;
+
+    font-size:14px;
     font-weight:700;
 }
+
+.topN:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:
+        0 0 0 4px rgba(37,99,235,.08);
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
 
 .table-wrap{
 
@@ -165,6 +230,11 @@ table{
 
 thead{
 
+    position:sticky;
+    top:0;
+
+    z-index:10;
+
     background:#f8fafc;
 }
 
@@ -177,9 +247,9 @@ th{
     font-size:12px;
     font-weight:800;
 
-    text-transform:uppercase;
-
     color:#475569;
+
+    text-transform:uppercase;
 
     border-bottom:
         1px solid #e2e8f0;
@@ -197,9 +267,14 @@ td{
     color:#0f172a;
 }
 
+tbody tr:nth-child(even){
+
+    background:#fbfdff;
+}
+
 tbody tr:hover{
 
-    background:#eff6ff;
+    background:#eef6ff;
 }
 
 .num{
@@ -207,11 +282,20 @@ tbody tr:hover{
     text-align:right;
 
     font-weight:700;
+
+    font-variant-numeric:
+        tabular-nums;
 }
+
+/* ======================================================
+   BADGE
+====================================================== */
 
 .badge{
 
-    display:inline-block;
+    display:inline-flex;
+
+    align-items:center;
 
     padding:6px 12px;
 
@@ -225,13 +309,19 @@ tbody tr:hover{
     font-weight:700;
 }
 
+/* ======================================================
+   EMPTY
+====================================================== */
+
 .empty{
 
-    padding:50px;
+    padding:60px;
 
     text-align:center;
 
     color:#94a3b8;
+
+    font-size:15px;
 }
 
 </style>
@@ -244,9 +334,13 @@ tbody tr:hover{
 
     <div class="card">
 
+        <!-- =========================================
+             HEADER
+        ========================================== -->
+
         <div class="header">
 
-            <div>
+            <div class="header-left">
 
                 <div class="title">
                     FCY Exposure Dashboard
@@ -262,6 +356,8 @@ tbody tr:hover{
             </div>
 
             <div class="toolbar">
+
+                <!-- TOGGLE -->
 
                 <div class="toggle">
 
@@ -282,6 +378,8 @@ tbody tr:hover{
 
                 </div>
 
+                <!-- TOP N -->
+
                 <input
                     type="number"
                     id="topN"
@@ -294,6 +392,10 @@ tbody tr:hover{
 
         </div>
 
+        <!-- =========================================
+             TABLE
+        ========================================== -->
+
         <div class="table-wrap">
 
             <table>
@@ -302,19 +404,25 @@ tbody tr:hover{
 
                     <tr>
 
-                        <th>
+                        <th style="width:40%">
                             Branch Name
                         </th>
 
-                        <th id="currencyHeader">
+                        <th id="currencyHeader"
+                            style="width:20%">
+
                             Currency
+
                         </th>
 
-                        <th id="fcyHeader">
+                        <th id="fcyHeader"
+                            style="width:20%">
+
                             FCY
+
                         </th>
 
-                        <th>
+                        <th style="width:20%">
                             LKR Mn
                         </th>
 
@@ -336,9 +444,17 @@ tbody tr:hover{
 
 <script>
 
+/* ======================================================
+   VARIABLES
+====================================================== */
+
 let worksheet;
 
 let mode = 'branch';
+
+/* ======================================================
+   FORMAT
+====================================================== */
 
 function format(v){
 
@@ -354,109 +470,145 @@ function format(v){
     ).format(v || 0);
 }
 
+/* ======================================================
+   LOAD DATA
+====================================================== */
+
 async function loadData(){
 
-    const data =
-        await worksheet.getSummaryDataAsync();
+    try{
 
-    const cols =
-        data.columns.map(c => c.fieldName);
+        const data =
+            await worksheet.getUnderlyingDataAsync();
 
-    console.log(cols);
+        console.log(data);
 
-    const branchField =
-        cols.find(c =>
-            c.toLowerCase().includes('branch')
-        );
+        const cols =
+            data.columns.map(c => c.fieldName);
 
-    const currencyField =
-        cols.find(c =>
-            c.toLowerCase().includes('currency')
-        );
+        console.log(cols);
 
-    const fcyField =
-        cols.find(c =>
-            c.toLowerCase().includes('fcy')
-        );
-
-    const lkrField =
-        cols.find(c =>
-            c.toLowerCase().includes('lkr')
-        );
-
-    const grouped = {};
-
-    data.data.forEach(r => {
-
-        const branch =
-            r[cols.indexOf(branchField)]
-                ?.formattedValue || '';
-
-        const currency =
-            currencyField
-                ? (
-                    r[
-                        cols.indexOf(currencyField)
-                    ]?.formattedValue || ''
-                )
-                : '';
-
-        const fcy =
-            fcyField
-                ? Number(
-                    r[
-                        cols.indexOf(fcyField)
-                    ]?.value || 0
-                )
-                : 0;
-
-        const lkr =
-            Number(
-                r[
-                    cols.indexOf(lkrField)
-                ]?.value || 0
+        const branchIndex =
+            cols.findIndex(c =>
+                c.toLowerCase().includes('branch')
             );
 
-        const key =
+        const currencyIndex =
+            cols.findIndex(c =>
+                c.toLowerCase().includes('currency')
+            );
 
-            mode === 'branchCurrency'
+        const fcyIndex =
+            cols.findIndex(c =>
+                c.toLowerCase().includes('fcy')
+            );
 
-            ? `${branch}|${currency}`
+        const lkrIndex =
+            cols.findIndex(c =>
+                c.toLowerCase().includes('lkr')
+            );
 
-            : branch;
+        console.log({
 
-        if(!grouped[key]){
+            branchIndex,
+            currencyIndex,
+            fcyIndex,
+            lkrIndex
 
-            grouped[key] = {
+        });
 
-                branch,
-                currency,
-                fcy:0,
-                lkr:0
-            };
-        }
+        const grouped = {};
 
-        grouped[key].fcy += fcy;
-        grouped[key].lkr += lkr;
-    });
+        data.data.forEach(r => {
 
-    let rows =
-        Object.values(grouped);
+            const branch =
+                r[branchIndex]
+                    ?.formattedValue || '';
 
-    rows.sort((a,b)=>
-        b.lkr - a.lkr
-    );
+            const currency =
+                currencyIndex >= 0
+                    ? (
+                        r[currencyIndex]
+                        ?.formattedValue || ''
+                    )
+                    : '';
 
-    const topN =
-        Number(
-            document.getElementById('topN').value
-        ) || 10;
+            const fcy =
+                fcyIndex >= 0
+                    ? Number(
+                        r[fcyIndex]
+                        ?.value || 0
+                    )
+                    : 0;
 
-    rows =
-        rows.slice(0, topN);
+            const lkr =
+                lkrIndex >= 0
+                    ? Number(
+                        r[lkrIndex]
+                        ?.value || 0
+                    )
+                    : 0;
 
-    render(rows);
+            if(!branch){
+                return;
+            }
+
+            const key =
+
+                mode === 'branchCurrency'
+
+                ? `${branch}|${currency}`
+
+                : branch;
+
+            if(!grouped[key]){
+
+                grouped[key] = {
+
+                    branch,
+                    currency,
+                    fcy:0,
+                    lkr:0
+                };
+            }
+
+            grouped[key].fcy += fcy;
+            grouped[key].lkr += lkr;
+        });
+
+        let rows =
+            Object.values(grouped);
+
+        /* SORT */
+
+        rows.sort((a,b)=>
+            b.lkr - a.lkr
+        );
+
+        /* TOP N */
+
+        const topN =
+            Number(
+                document.getElementById('topN').value
+            ) || 10;
+
+        rows =
+            rows.slice(0, topN);
+
+        render(rows);
+
+    }catch(error){
+
+        console.error(
+            "LOAD ERROR:",
+            error
+        );
+    }
 }
+
+/* ======================================================
+   RENDER
+====================================================== */
 
 function render(rows){
 
@@ -471,12 +623,18 @@ function render(rows){
     document
         .getElementById('currencyHeader')
         .style.display =
-            showCurrency ? '' : 'none';
+
+        showCurrency
+            ? ''
+            : 'none';
 
     document
         .getElementById('fcyHeader')
         .style.display =
-            showCurrency ? '' : 'none';
+
+        showCurrency
+            ? ''
+            : 'none';
 
     if(!rows.length){
 
@@ -487,7 +645,7 @@ function render(rows){
                 <td colspan="4"
                     class="empty">
 
-                    No rows returned
+                    No rows returned from Tableau
 
                 </td>
 
@@ -507,7 +665,9 @@ function render(rows){
 
             tr.innerHTML = `
 
-                <td>${r.branch}</td>
+                <td>
+                    ${r.branch}
+                </td>
 
                 <td>
                     <span class="badge">
@@ -529,7 +689,9 @@ function render(rows){
 
             tr.innerHTML = `
 
-                <td>${r.branch}</td>
+                <td>
+                    ${r.branch}
+                </td>
 
                 <td></td>
 
@@ -549,9 +711,13 @@ function render(rows){
         `${rows.length} Rows`;
 }
 
-function setMode(m){
+/* ======================================================
+   MODE SWITCH
+====================================================== */
 
-    mode = m;
+function setMode(newMode){
+
+    mode = newMode;
 
     document
         .getElementById('branchBtn')
@@ -561,7 +727,7 @@ function setMode(m){
         .getElementById('branchCurrencyBtn')
         .classList.remove('active');
 
-    if(m === 'branch'){
+    if(mode === 'branch'){
 
         document
             .getElementById('branchBtn')
@@ -577,66 +743,64 @@ function setMode(m){
     loadData();
 }
 
+/* ======================================================
+   INIT
+====================================================== */
+
 window.onload = async function(){
 
-    await tableau.extensions.initializeAsync();
+    try{
 
-    const dashboard =
-        tableau.extensions
-        .dashboardContent
-        .dashboard;
+        await tableau.extensions.initializeAsync();
 
-    worksheet =
-        dashboard.worksheets.find(
+        worksheet =
+            tableau.extensions
+            .worksheetContent
+            .worksheet;
 
-            w => w.name === 'FCY_SOURCE'
+        console.log(
+            "WORKSHEET:",
+            worksheet.name
         );
 
-    if(!worksheet){
+        /* EVENTS */
 
-        alert(
-            'Worksheet FCY_SOURCE not found'
+        document
+            .getElementById('topN')
+            .addEventListener(
+
+                'input',
+
+                loadData
+            );
+
+        document
+            .getElementById('branchBtn')
+            .addEventListener(
+
+                'click',
+
+                () => setMode('branch')
+            );
+
+        document
+            .getElementById('branchCurrencyBtn')
+            .addEventListener(
+
+                'click',
+
+                () => setMode('branchCurrency')
+            );
+
+        loadData();
+
+    }catch(error){
+
+        console.error(
+            "INIT ERROR:",
+            error
         );
-
-        return;
     }
-
-    worksheet.addEventListener(
-
-        tableau.TableauEventType
-            .SummaryDataChanged,
-
-        loadData
-    );
-
-    document
-        .getElementById('topN')
-        .addEventListener(
-
-            'input',
-
-            loadData
-        );
-
-    document
-        .getElementById('branchBtn')
-        .addEventListener(
-
-            'click',
-
-            () => setMode('branch')
-        );
-
-    document
-        .getElementById('branchCurrencyBtn')
-        .addEventListener(
-
-            'click',
-
-            () => setMode('branchCurrency')
-        );
-
-    loadData();
 };
 
 </script>
