@@ -107,7 +107,7 @@ body{
 
 .title{
 
-    font-size:20px;
+    font-size:22px;
     font-weight:700;
 
     color:#0f172a;
@@ -129,27 +129,6 @@ body{
     display:flex;
     align-items:center;
     gap:12px;
-
-    flex-wrap:wrap;
-}
-
-.control{
-
-    padding:11px 14px;
-
-    border-radius:12px;
-
-    border:
-        1px solid #dbe3ee;
-
-    background:white;
-
-    outline:none;
-
-    font-size:14px;
-    font-weight:600;
-
-    color:#0f172a;
 }
 
 /* ======================================================
@@ -175,7 +154,7 @@ body{
 
     background:transparent;
 
-    padding:10px 16px;
+    padding:10px 18px;
 
     border-radius:10px;
 
@@ -200,6 +179,39 @@ body{
 }
 
 /* ======================================================
+   INPUT
+====================================================== */
+
+.top-input{
+
+    width:90px;
+
+    padding:11px 14px;
+
+    border-radius:12px;
+
+    border:
+        1px solid #dbe3ee;
+
+    background:white;
+
+    outline:none;
+
+    font-size:14px;
+    font-weight:700;
+
+    color:#0f172a;
+}
+
+.top-input:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:
+        0 0 0 4px rgba(37,99,235,.08);
+}
+
+/* ======================================================
    TABLE
 ====================================================== */
 
@@ -220,7 +232,7 @@ table{
 }
 
 /* ======================================================
-   TABLE HEADER
+   HEADER
 ====================================================== */
 
 thead{
@@ -254,7 +266,7 @@ th{
 }
 
 /* ======================================================
-   TABLE BODY
+   BODY
 ====================================================== */
 
 tbody tr:nth-child(even){
@@ -284,7 +296,14 @@ td{
     text-align:right;
 
     font-weight:700;
+
+    font-variant-numeric:
+        tabular-nums;
 }
+
+/* ======================================================
+   BADGE
+====================================================== */
 
 .badge{
 
@@ -359,13 +378,6 @@ td{
 
             <div class="toolbar">
 
-                <!-- WORKSHEET SELECT -->
-
-                <select id="worksheetSelect"
-                        class="control">
-
-                </select>
-
                 <!-- TOGGLE -->
 
                 <div class="toggle">
@@ -393,7 +405,7 @@ td{
                 <input
                     type="number"
                     id="topN"
-                    class="control"
+                    class="top-input"
                     value="10"
                     min="1"
                 />
@@ -458,13 +470,12 @@ td{
    VARIABLES
 ====================================================== */
 
-let dashboard;
 let worksheet;
 
 let mode = 'branch';
 
 /* ======================================================
-   FORMAT NUMBER
+   FORMAT
 ====================================================== */
 
 function formatNumber(v){
@@ -479,35 +490,6 @@ function formatNumber(v){
         }
 
     ).format(v || 0);
-}
-
-/* ======================================================
-   LOAD WORKSHEETS
-====================================================== */
-
-function loadWorksheetSelector(){
-
-    const select =
-        document.getElementById(
-            'worksheetSelect'
-        );
-
-    select.innerHTML = '';
-
-    dashboard.worksheets.forEach(ws => {
-
-        const option =
-            document.createElement('option');
-
-        option.value = ws.name;
-        option.textContent = ws.name;
-
-        select.appendChild(option);
-
-    });
-
-    worksheet =
-        dashboard.worksheets[0];
 }
 
 /* ======================================================
@@ -695,6 +677,8 @@ function render(rows){
     const showCurrency =
         mode === 'branchCurrency';
 
+    /* SHOW/HIDE HEADERS */
+
     document
         .getElementById('currencyHeader')
         .style.display =
@@ -773,8 +757,12 @@ async function update(){
         const raw =
             await getData();
 
+        console.log("RAW:", raw);
+
         const rows =
             processData(raw);
+
+        console.log("PROCESSED:", rows);
 
         render(rows);
 
@@ -788,7 +776,7 @@ async function update(){
 }
 
 /* ======================================================
-   MODE SWITCH
+   MODE
 ====================================================== */
 
 function setMode(newMode){
@@ -829,35 +817,32 @@ window.onload = async function(){
 
         await tableau.extensions.initializeAsync();
 
-        dashboard =
+        /* =========================================
+           WORKSHEET EXTENSION
+        ========================================= */
+
+        worksheet =
             tableau.extensions
-            .dashboardContent
-            .dashboard;
+            .worksheetContent
+            .worksheet;
 
-        loadWorksheetSelector();
+        console.log("WORKSHEET:", worksheet.name);
 
-        /* WORKSHEET CHANGE */
+        /* =========================================
+           DATA CHANGE LISTENER
+        ========================================= */
 
-        document
-            .getElementById('worksheetSelect')
-            .addEventListener(
+        worksheet.addEventListener(
 
-                'change',
+            tableau.TableauEventType
+                .SummaryDataChanged,
 
-                e => {
+            update
+        );
 
-                    worksheet =
-                        dashboard.worksheets.find(
-
-                            w =>
-                            w.name === e.target.value
-                        );
-
-                    update();
-                }
-            );
-
-        /* TOP N */
+        /* =========================================
+           TOP N
+        ========================================= */
 
         document
             .getElementById('topN')
@@ -868,7 +853,9 @@ window.onload = async function(){
                 update
             );
 
-        /* MODE */
+        /* =========================================
+           MODE SWITCH
+        ========================================= */
 
         document
             .getElementById('branchBtn')
@@ -888,7 +875,9 @@ window.onload = async function(){
                 () => setMode('branchCurrency')
             );
 
-        /* INITIAL LOAD */
+        /* =========================================
+           INITIAL LOAD
+        ========================================= */
 
         update();
 
