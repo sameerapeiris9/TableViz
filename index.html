@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8" />
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0"/>
+
+<title>FCY Exposure Table</title>
+
+<script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
+
+<style>
+
+/* ======================================================
+   GLOBAL
+====================================================== */
+
+html,
+body{
+
+    margin:0;
+    padding:0;
+
+    width:100%;
+    height:100%;
+
+    overflow:hidden;
+
+    background:#f5f7fb;
+
+    font-family:
+        Inter,
+        Segoe UI,
+        Arial,
+        sans-serif;
+}
+
+/* ======================================================
+   CONTAINER
+====================================================== */
+
+.wrapper{
+
+    width:100%;
+    height:100%;
+
+    padding:18px;
+
+    box-sizing:border-box;
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.card{
+
+    background:white;
+
+    border-radius:18px;
+
+    height:100%;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 4px 18px rgba(15,23,42,.06);
+
+    border:
+        1px solid rgba(226,232,240,.8);
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.header{
+
+    padding:18px 22px;
+
+    border-bottom:
+        1px solid #eef2f7;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.title{
+
+    font-size:18px;
+    font-weight:700;
+
+    color:#0f172a;
+}
+
+.count{
+
+    font-size:13px;
+
+    color:#64748b;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.table-container{
+
+    height:calc(100% - 70px);
+
+    overflow:auto;
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+}
+
+/* ======================================================
+   HEADER ROW
+====================================================== */
+
+thead{
+
+    position:sticky;
+    top:0;
+
+    z-index:10;
+}
+
+thead tr{
+
+    background:#f8fafc;
+}
+
+th{
+
+    text-align:left;
+
+    padding:16px 18px;
+
+    font-size:12px;
+    font-weight:700;
+
+    color:#475569;
+
+    text-transform:uppercase;
+    letter-spacing:.04em;
+
+    border-bottom:
+        1px solid #e2e8f0;
+}
+
+/* ======================================================
+   BODY
+====================================================== */
+
+tbody tr{
+
+    transition:background .15s ease;
+}
+
+tbody tr:nth-child(even){
+
+    background:#fafcff;
+}
+
+tbody tr:hover{
+
+    background:#eef6ff;
+}
+
+td{
+
+    padding:15px 18px;
+
+    border-bottom:
+        1px solid #f1f5f9;
+
+    color:#0f172a;
+
+    font-size:14px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* ======================================================
+   NUMBERS
+====================================================== */
+
+.num{
+
+    text-align:right;
+
+    font-variant-numeric:
+        tabular-nums;
+
+    font-weight:600;
+}
+
+/* ======================================================
+   CURRENCY BADGE
+====================================================== */
+
+.badge{
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:6px 10px;
+
+    border-radius:999px;
+
+    background:#eff6ff;
+
+    color:#2563eb;
+
+    font-size:12px;
+    font-weight:700;
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+    height:10px;
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#cbd5e1;
+
+    border-radius:20px;
+}
+
+::-webkit-scrollbar-track{
+
+    background:#f8fafc;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+    <div class="card">
+
+        <div class="header">
+
+            <div class="title">
+                FCY Exposure Table
+            </div>
+
+            <div class="count"
+                 id="rowCount">
+                0 Rows
+            </div>
+
+        </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th style="width:35%">
+                            Branch Name
+                        </th>
+
+                        <th style="width:15%">
+                            Currency
+                        </th>
+
+                        <th style="width:25%">
+                            FCY
+                        </th>
+
+                        <th style="width:25%">
+                            LKR Mn
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tableBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* ======================================================
+   VARIABLES
+====================================================== */
+
+let worksheet;
+
+/* ======================================================
+   FORMAT NUMBER
+====================================================== */
+
+function formatNumber(v){
+
+    return new Intl.NumberFormat(
+
+        'en-US',
+
+        {
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        }
+
+    ).format(v || 0);
+}
+
+/* ======================================================
+   GET TABLEAU DATA
+====================================================== */
+
+async function getSummaryDataTable(ws){
+
+    let rows = [];
+
+    const reader = await ws.getSummaryDataReaderAsync(
+
+        undefined,
+        { ignoreSelection:true }
+
+    );
+
+    for(let i=0; i<reader.pageCount; i++){
+
+        const page = await reader.getPageAsync(i);
+
+        rows = rows.concat(
+
+            page.data.map(r => {
+
+                const row = {};
+
+                page.columns.forEach((col,idx)=>{
+
+                    row[col.fieldName] = r[idx];
+
+                });
+
+                return row;
+            })
+        );
+    }
+
+    await reader.releaseAsync();
+
+    return rows;
+}
+
+/* ======================================================
+   RENDER TABLE
+====================================================== */
+
+function render(data){
+
+    const tbody =
+        document.getElementById('tableBody');
+
+    tbody.innerHTML = '';
+
+    if(!data.length){
+        return;
+    }
+
+    const keys =
+        Object.keys(data[0]);
+
+    const branchField =
+        keys.find(k =>
+            k.toLowerCase().includes('branch')
+        );
+
+    const currencyField =
+        keys.find(k =>
+            k.toLowerCase().includes('currency')
+        );
+
+    const fcyField =
+        keys.find(k =>
+            k.toLowerCase() === 'fcy'
+        );
+
+    const lkrField =
+        keys.find(k =>
+            k.toLowerCase().includes('lkr')
+        );
+
+    for(let i=0; i<data.length; i++){
+
+        const d = data[i];
+
+        const branch =
+            d[branchField]
+            ? d[branchField].formattedValue
+            : '';
+
+        const currency =
+            d[currencyField]
+            ? d[currencyField].formattedValue
+            : '';
+
+        const fcy =
+            d[fcyField]
+            ? Number(d[fcyField].nativeValue)
+            : 0;
+
+        const lkr =
+            d[lkrField]
+            ? Number(d[lkrField].nativeValue)
+            : 0;
+
+        const tr =
+            document.createElement('tr');
+
+        tr.innerHTML = `
+
+            <td>
+                ${branch}
+            </td>
+
+            <td>
+                <span class="badge">
+                    ${currency}
+                </span>
+            </td>
+
+            <td class="num">
+                ${formatNumber(fcy)}
+            </td>
+
+            <td class="num">
+                ${formatNumber(lkr)}
+            </td>
+
+        `;
+
+        tbody.appendChild(tr);
+    }
+
+    document.getElementById('rowCount').innerText =
+        `${data.length} Rows`;
+}
+
+/* ======================================================
+   UPDATE
+====================================================== */
+
+async function update(){
+
+    const data =
+        await getSummaryDataTable(worksheet);
+
+    render(data);
+}
+
+/* ======================================================
+   INIT
+====================================================== */
+
+window.onload = function(){
+
+    tableau.extensions.initializeAsync()
+
+    .then(() => {
+
+        worksheet =
+            tableau.extensions
+            .worksheetContent
+            .worksheet;
+
+        worksheet.addEventListener(
+
+            tableau.TableauEventType.SummaryDataChanged,
+
+            update
+        );
+
+        update();
+    })
+
+    .catch(error => {
+
+        console.error(
+            "Initialization Error:",
+            error
+        );
+    });
+};
+
+</script>
+
+</body>
+</html>
