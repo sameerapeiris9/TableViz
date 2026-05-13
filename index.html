@@ -1,279 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-<meta charset="UTF-8" />
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0"/>
-
-<title>FCY Exposure Table</title>
-
-<script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
-
-<style>
-
-/* ======================================================
-   GLOBAL
-====================================================== */
-
-html,
-body{
-
-    margin:0;
-    padding:0;
-
-    width:100%;
-    height:100%;
-
-    overflow:hidden;
-
-    background:#f5f7fb;
-
-    font-family:
-        Inter,
-        Segoe UI,
-        Arial,
-        sans-serif;
-}
-
-/* ======================================================
-   CONTAINER
-====================================================== */
-
-.wrapper{
-
-    width:100%;
-    height:100%;
-
-    padding:18px;
-
-    box-sizing:border-box;
-}
-
-/* ======================================================
-   CARD
-====================================================== */
-
-.card{
-
-    background:white;
-
-    border-radius:18px;
-
-    height:100%;
-
-    overflow:hidden;
-
-    box-shadow:
-        0 4px 18px rgba(15,23,42,.06);
-
-    border:
-        1px solid rgba(226,232,240,.8);
-}
-
-/* ======================================================
-   HEADER
-====================================================== */
-
-.header{
-
-    padding:18px 22px;
-
-    border-bottom:
-        1px solid #eef2f7;
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.title{
-
-    font-size:18px;
-    font-weight:700;
-
-    color:#0f172a;
-}
-
-.count{
-
-    font-size:13px;
-
-    color:#64748b;
-}
-
-/* ======================================================
-   TABLE
-====================================================== */
-
-.table-container{
-
-    height:calc(100% - 70px);
-
-    overflow:auto;
-}
-
-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    table-layout:fixed;
-}
-
-/* ======================================================
-   HEADER ROW
-====================================================== */
-
-thead{
-
-    position:sticky;
-    top:0;
-
-    z-index:10;
-}
-
-thead tr{
-
-    background:#f8fafc;
-}
-
-th{
-
-    text-align:left;
-
-    padding:16px 18px;
-
-    font-size:12px;
-    font-weight:700;
-
-    color:#475569;
-
-    text-transform:uppercase;
-    letter-spacing:.04em;
-
-    border-bottom:
-        1px solid #e2e8f0;
-}
-
-/* ======================================================
-   BODY
-====================================================== */
-
-tbody tr{
-
-    transition:background .15s ease;
-}
-
-tbody tr:nth-child(even){
-
-    background:#fafcff;
-}
-
-tbody tr:hover{
-
-    background:#eef6ff;
-}
-
-td{
-
-    padding:15px 18px;
-
-    border-bottom:
-        1px solid #f1f5f9;
-
-    color:#0f172a;
-
-    font-size:14px;
-
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
-/* ======================================================
-   NUMBERS
-====================================================== */
-
-.num{
-
-    text-align:right;
-
-    font-variant-numeric:
-        tabular-nums;
-
-    font-weight:600;
-}
-
-/* ======================================================
-   CURRENCY BADGE
-====================================================== */
-
-.badge{
-
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-
-    padding:6px 10px;
-
-    border-radius:999px;
-
-    background:#eff6ff;
-
-    color:#2563eb;
-
-    font-size:12px;
-    font-weight:700;
-}
-
-/* ======================================================
-   SCROLLBAR
-====================================================== */
-
-::-webkit-scrollbar{
-
-    width:10px;
-    height:10px;
-}
-
-::-webkit-scrollbar-thumb{
-
-    background:#cbd5e1;
-
-    border-radius:20px;
-}
-
-::-webkit-scrollbar-track{
-
-    background:#f8fafc;
-}
-
-</style>
-
-</head>
-
 <body>
 
 <div class="wrapper">
 
     <div class="card">
 
+        <!-- =========================================
+             HEADER
+        ========================================== -->
+
         <div class="header">
 
-            <div class="title">
-                FCY Exposure Table
+            <div>
+
+                <div class="title">
+                    Top FCY Exposure Branches
+                </div>
+
+                <div class="count"
+                     id="rowCount">
+                    0 Rows
+                </div>
+
             </div>
 
-            <div class="count"
-                 id="rowCount">
-                0 Rows
+            <!-- TOP N CONTROL -->
+
+            <div class="toolbar">
+
+                <label class="toolbar-label">
+                    Top N
+                </label>
+
+                <input
+                    type="number"
+                    id="topN"
+                    class="top-input"
+                    value="10"
+                    min="1"
+                />
+
             </div>
 
         </div>
+
+        <!-- =========================================
+             TABLE
+        ========================================== -->
 
         <div class="table-container">
 
@@ -314,6 +86,55 @@ td{
     </div>
 
 </div>
+
+<style>
+
+/* =========================================
+   TOOLBAR
+========================================= */
+
+.toolbar{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.toolbar-label{
+
+    font-size:13px;
+    color:#475569;
+    font-weight:600;
+}
+
+.top-input{
+
+    width:80px;
+
+    padding:10px 12px;
+
+    border-radius:10px;
+
+    border:
+        1px solid #dbe3ee;
+
+    background:white;
+
+    font-size:14px;
+    font-weight:600;
+
+    outline:none;
+}
+
+.top-input:focus{
+
+    border-color:#3b82f6;
+
+    box-shadow:
+        0 0 0 3px rgba(59,130,246,.1);
+}
+
+</style>
 
 <script>
 
@@ -383,18 +204,13 @@ async function getSummaryDataTable(ws){
 }
 
 /* ======================================================
-   RENDER TABLE
+   PROCESS DATA
 ====================================================== */
 
-function render(data){
-
-    const tbody =
-        document.getElementById('tableBody');
-
-    tbody.innerHTML = '';
+function processData(data){
 
     if(!data.length){
-        return;
+        return [];
     }
 
     const keys =
@@ -420,6 +236,8 @@ function render(data){
             k.toLowerCase().includes('lkr')
         );
 
+    let rows = [];
+
     for(let i=0; i<data.length; i++){
 
         const d = data[i];
@@ -444,27 +262,75 @@ function render(data){
             ? Number(d[lkrField].nativeValue)
             : 0;
 
+        /* IGNORE ZERO VALUES */
+
+        if(
+            fcy <= 0 ||
+            lkr <= 0
+        ){
+            continue;
+        }
+
+        rows.push({
+
+            branch,
+            currency,
+            fcy,
+            lkr
+
+        });
+    }
+
+    /* SORT DESCENDING BY LKR */
+
+    rows.sort((a,b) => b.lkr - a.lkr);
+
+    /* TOP N */
+
+    const topN =
+        Number(
+            document.getElementById('topN').value
+        ) || 10;
+
+    return rows.slice(0, topN);
+}
+
+/* ======================================================
+   RENDER TABLE
+====================================================== */
+
+function render(rows){
+
+    const tbody =
+        document.getElementById('tableBody');
+
+    tbody.innerHTML = '';
+
+    for(let i=0; i<rows.length; i++){
+
+        const r = rows[i];
+
         const tr =
             document.createElement('tr');
 
         tr.innerHTML = `
 
             <td>
-                ${branch}
+                ${r.branch}
             </td>
 
             <td>
                 <span class="badge">
-                    ${currency}
+                    ${r.currency}
                 </span>
             </td>
 
             <td class="num">
-                ${formatNumber(fcy)}
+                ${formatNumber(r.fcy)}
             </td>
 
             <td class="num">
-                ${formatNumber(lkr)}
+                ${formatNumber(r.lkr)}
             </td>
 
         `;
@@ -473,7 +339,7 @@ function render(data){
     }
 
     document.getElementById('rowCount').innerText =
-        `${data.length} Rows`;
+        `${rows.length} Rows`;
 }
 
 /* ======================================================
@@ -482,10 +348,13 @@ function render(data){
 
 async function update(){
 
-    const data =
+    const raw =
         await getSummaryDataTable(worksheet);
 
-    render(data);
+    const rows =
+        processData(raw);
+
+    render(rows);
 }
 
 /* ======================================================
@@ -510,6 +379,17 @@ window.onload = function(){
             update
         );
 
+        /* TOP N CHANGE */
+
+        document
+            .getElementById('topN')
+            .addEventListener(
+
+                'input',
+
+                update
+            );
+
         update();
     })
 
@@ -525,4 +405,3 @@ window.onload = function(){
 </script>
 
 </body>
-</html>
