@@ -232,7 +232,7 @@ table{
 }
 
 /* ======================================================
-   HEADER
+   TABLE HEADER
 ====================================================== */
 
 thead{
@@ -266,7 +266,7 @@ th{
 }
 
 /* ======================================================
-   BODY
+   TABLE BODY
 ====================================================== */
 
 tbody tr:nth-child(even){
@@ -322,25 +322,18 @@ td{
 }
 
 /* ======================================================
-   SCROLLBAR
+   EMPTY
 ====================================================== */
 
-::-webkit-scrollbar{
+.empty{
 
-    width:10px;
-    height:10px;
-}
+    padding:40px;
 
-::-webkit-scrollbar-thumb{
+    text-align:center;
 
-    background:#cbd5e1;
+    color:#94a3b8;
 
-    border-radius:20px;
-}
-
-::-webkit-scrollbar-track{
-
-    background:#f8fafc;
+    font-size:14px;
 }
 
 </style>
@@ -475,7 +468,7 @@ let worksheet;
 let mode = 'branch';
 
 /* ======================================================
-   FORMAT
+   FORMAT NUMBER
 ====================================================== */
 
 function formatNumber(v){
@@ -544,19 +537,6 @@ async function getData(){
 }
 
 /* ======================================================
-   FIND FIELD
-====================================================== */
-
-function findField(keys, search){
-
-    return keys.find(k =>
-
-        k.toLowerCase()
-         .includes(search)
-    );
-}
-
-/* ======================================================
    PROCESS DATA
 ====================================================== */
 
@@ -569,19 +549,35 @@ function processData(data){
     const keys =
         Object.keys(data[0]);
 
-    console.log("FIELDS:", keys);
+    console.log("AVAILABLE FIELDS:", keys);
+
+    /* =========================================
+       SMART FIELD MATCHING
+    ========================================= */
 
     const branchField =
-        findField(keys, 'branch');
+        keys.find(k =>
+
+            k.toLowerCase().includes('branch')
+        );
 
     const currencyField =
-        findField(keys, 'currency');
+        keys.find(k =>
+
+            k.toLowerCase().includes('currency')
+        );
 
     const fcyField =
-        findField(keys, 'fcy');
+        keys.find(k =>
+
+            k.toLowerCase().includes('fcy')
+        );
 
     const lkrField =
-        findField(keys, 'lkr');
+        keys.find(k =>
+
+            k.toLowerCase().includes('lkr')
+        );
 
     console.log({
 
@@ -592,45 +588,79 @@ function processData(data){
 
     });
 
+    if(!branchField || !lkrField){
+
+        console.error(
+            "Required fields missing"
+        );
+
+        return [];
+    }
+
     const grouped = {};
 
     data.forEach(d => {
 
+        const branchCell =
+            d[branchField];
+
+        const currencyCell =
+            d[currencyField];
+
+        const fcyCell =
+            d[fcyField];
+
+        const lkrCell =
+            d[lkrField];
+
         const branch =
-            d[branchField]
-            ? d[branchField].formattedValue
-            : '';
+            branchCell
+                ? (
+                    branchCell.formattedValue ??
+                    branchCell.value ??
+                    ''
+                )
+                : '';
 
         const currency =
-            d[currencyField]
-            ? d[currencyField].formattedValue
-            : '';
+            currencyCell
+                ? (
+                    currencyCell.formattedValue ??
+                    currencyCell.value ??
+                    ''
+                )
+                : '';
 
         const fcy =
-            d[fcyField]
-            ? Number(
-                d[fcyField].nativeValue ||
-                d[fcyField].value ||
-                0
-            )
-            : 0;
+            fcyCell
+                ? Number(
+
+                    fcyCell.nativeValue ??
+                    fcyCell.value ??
+                    0
+                )
+                : 0;
 
         const lkr =
-            d[lkrField]
-            ? Number(
-                d[lkrField].nativeValue ||
-                d[lkrField].value ||
-                0
-            )
-            : 0;
+            lkrCell
+                ? Number(
+
+                    lkrCell.nativeValue ??
+                    lkrCell.value ??
+                    0
+                )
+                : 0;
 
         if(!branch){
             return;
         }
 
         const key =
+
             mode === 'branchCurrency'
+
             ? `${branch}|${currency}`
+
             : branch;
 
         if(!grouped[key]){
@@ -651,14 +681,22 @@ function processData(data){
     let rows =
         Object.values(grouped);
 
-    rows.sort((a,b) => b.lkr - a.lkr);
+    rows.sort((a,b) =>
+
+        b.lkr - a.lkr
+    );
 
     const topN =
         Number(
             document.getElementById('topN').value
         ) || 10;
 
-    return rows.slice(0, topN);
+    rows =
+        rows.slice(0, topN);
+
+    console.log("FINAL ROWS:", rows);
+
+    return rows;
 }
 
 /* ======================================================
@@ -677,8 +715,6 @@ function render(rows){
     const showCurrency =
         mode === 'branchCurrency';
 
-    /* SHOW/HIDE HEADERS */
-
     document
         .getElementById('currencyHeader')
         .style.display =
@@ -694,6 +730,26 @@ function render(rows){
         showCurrency
             ? ''
             : 'none';
+
+    if(!rows.length){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="4"
+                    class="empty">
+
+                    No data returned from Tableau
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+    }
 
     rows.forEach(r => {
 
@@ -762,8 +818,6 @@ async function update(){
         const rows =
             processData(raw);
 
-        console.log("PROCESSED:", rows);
-
         render(rows);
 
     }catch(error){
@@ -776,7 +830,7 @@ async function update(){
 }
 
 /* ======================================================
-   MODE
+   MODE SWITCH
 ====================================================== */
 
 function setMode(newMode){
@@ -817,20 +871,15 @@ window.onload = async function(){
 
         await tableau.extensions.initializeAsync();
 
-        /* =========================================
-           WORKSHEET EXTENSION
-        ========================================= */
-
         worksheet =
             tableau.extensions
             .worksheetContent
             .worksheet;
 
-        console.log("WORKSHEET:", worksheet.name);
-
-        /* =========================================
-           DATA CHANGE LISTENER
-        ========================================= */
+        console.log(
+            "WORKSHEET:",
+            worksheet.name
+        );
 
         worksheet.addEventListener(
 
@@ -840,10 +889,6 @@ window.onload = async function(){
             update
         );
 
-        /* =========================================
-           TOP N
-        ========================================= */
-
         document
             .getElementById('topN')
             .addEventListener(
@@ -852,10 +897,6 @@ window.onload = async function(){
 
                 update
             );
-
-        /* =========================================
-           MODE SWITCH
-        ========================================= */
 
         document
             .getElementById('branchBtn')
@@ -874,10 +915,6 @@ window.onload = async function(){
 
                 () => setMode('branchCurrency')
             );
-
-        /* =========================================
-           INITIAL LOAD
-        ========================================= */
 
         update();
 
