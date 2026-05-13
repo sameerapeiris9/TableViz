@@ -431,45 +431,31 @@ function formatNumber(v){
 }
 
 /* ======================================================
-   GET TABLEAU SUMMARY DATA
+   GET DATA
 ====================================================== */
 
-async function getSummaryDataTable(ws){
+async function getData(){
 
-    let rows = [];
+    const summaryData =
+        await worksheet.getSummaryDataAsync();
 
-    const reader = await ws.getSummaryDataReaderAsync(
+    const columns =
+        summaryData.columns.map(c => c.fieldName);
 
-        undefined,
-        { ignoreSelection:true }
+    console.log("COLUMNS:", columns);
 
-    );
+    return summaryData.data.map(row => {
 
-    for(let i=0; i<reader.pageCount; i++){
+        let obj = {};
 
-        const page =
-            await reader.getPageAsync(i);
+        row.forEach((cell, i) => {
 
-        rows = rows.concat(
+            obj[columns[i]] = cell;
 
-            page.data.map(r => {
+        });
 
-                const row = {};
-
-                page.columns.forEach((col,idx)=>{
-
-                    row[col.fieldName] = r[idx];
-
-                });
-
-                return row;
-            })
-        );
-    }
-
-    await reader.releaseAsync();
-
-    return rows;
+        return obj;
+    });
 }
 
 /* ======================================================
@@ -485,11 +471,7 @@ function processData(data){
     const keys =
         Object.keys(data[0]);
 
-    console.log("TABLEAU FIELDS:", keys);
-
-    /* =========================================
-       DETECT FIELDS
-    ========================================= */
+    console.log("FIELDS:", keys);
 
     const branchField =
         keys.find(k =>
@@ -522,13 +504,7 @@ function processData(data){
 
     let rows = [];
 
-    /* =========================================
-       LOOP ROWS
-    ========================================= */
-
-    for(let i=0; i<data.length; i++){
-
-        const d = data[i];
+    data.forEach(d => {
 
         const branch =
             d[branchField]
@@ -540,24 +516,15 @@ function processData(data){
             ? d[currencyField].formattedValue
             : '';
 
-        let fcy = 0;
-        let lkr = 0;
+        const fcy =
+            d[fcyField]
+            ? Number(d[fcyField].nativeValue || 0)
+            : 0;
 
-        if(
-            d[fcyField] &&
-            d[fcyField].nativeValue != null
-        ){
-            fcy =
-                Number(d[fcyField].nativeValue);
-        }
-
-        if(
-            d[lkrField] &&
-            d[lkrField].nativeValue != null
-        ){
-            lkr =
-                Number(d[lkrField].nativeValue);
-        }
+        const lkr =
+            d[lkrField]
+            ? Number(d[lkrField].nativeValue || 0)
+            : 0;
 
         rows.push({
 
@@ -567,17 +534,14 @@ function processData(data){
             lkr
 
         });
-    }
 
-    /* =========================================
-       SORT BY LKR DESC
-    ========================================= */
+    });
+
+    /* SORT */
 
     rows.sort((a,b) => b.lkr - a.lkr);
 
-    /* =========================================
-       TOP N
-    ========================================= */
+    /* TOP N */
 
     const topN =
         Number(
@@ -588,7 +552,7 @@ function processData(data){
 }
 
 /* ======================================================
-   RENDER TABLE
+   RENDER
 ====================================================== */
 
 function render(rows){
@@ -598,9 +562,7 @@ function render(rows){
 
     tbody.innerHTML = '';
 
-    for(let i=0; i<rows.length; i++){
-
-        const r = rows[i];
+    rows.forEach(r => {
 
         const tr =
             document.createElement('tr');
@@ -628,7 +590,7 @@ function render(rows){
         `;
 
         tbody.appendChild(tr);
-    }
+    });
 
     document.getElementById('rowCount').innerText =
         `${rows.length} Rows`;
@@ -643,23 +605,20 @@ async function update(){
     try{
 
         const raw =
-            await getSummaryDataTable(worksheet);
+            await getData();
 
-        console.log("RAW DATA:", raw);
+        console.log("RAW:", raw);
 
         const rows =
             processData(raw);
 
-        console.log("FINAL ROWS:", rows);
+        console.log("ROWS:", rows);
 
         render(rows);
 
     }catch(error){
 
-        console.error(
-            "Update Error:",
-            error
-        );
+        console.error(error);
     }
 }
 
@@ -667,19 +626,29 @@ async function update(){
    INIT
 ====================================================== */
 
-window.onload = function(){
+window.onload = async function(){
 
-    tableau.extensions.initializeAsync()
+    try{
 
-    .then(() => {
+        await tableau.extensions.initializeAsync();
 
-        worksheet =
-            tableau.extensions
-            .worksheetContent
-            .worksheet;
+        const dashboard =
+            tableau.extensions.dashboardContent.dashboard;
 
         console.log(
-            "Connected Worksheet:",
+            "WORKSHEETS:",
+            dashboard.worksheets.map(w => w.name)
+        );
+
+        /* =========================================
+           PICK YOUR WORKSHEET
+        ========================================= */
+
+        worksheet =
+            dashboard.worksheets[0];
+
+        console.log(
+            "CONNECTED:",
             worksheet.name
         );
 
@@ -689,8 +658,6 @@ window.onload = function(){
 
             update
         );
-
-        /* TOP N CHANGE */
 
         document
             .getElementById('topN')
@@ -702,15 +669,14 @@ window.onload = function(){
             );
 
         update();
-    })
 
-    .catch(error => {
+    }catch(error){
 
         console.error(
-            "Initialization Error:",
+            "INIT ERROR:",
             error
         );
-    });
+    }
 };
 
 </script>
