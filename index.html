@@ -10,9 +10,14 @@
 
 <title>FCY Exposure Dashboard</title>
 
+<!-- TABLEAU -->
 <script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
 
 <style>
+
+/* ======================================================
+   GLOBAL
+====================================================== */
 
 html,
 body{
@@ -93,6 +98,13 @@ body{
     gap:14px;
 }
 
+.header-left{
+
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
 .title{
 
     font-size:20px;
@@ -106,8 +118,6 @@ body{
     font-size:13px;
 
     color:#64748b;
-
-    margin-top:4px;
 }
 
 /* ======================================================
@@ -209,6 +219,10 @@ table{
     table-layout:fixed;
 }
 
+/* ======================================================
+   TABLE HEADER
+====================================================== */
+
 thead{
 
     position:sticky;
@@ -238,6 +252,10 @@ th{
     border-bottom:
         1px solid #e2e8f0;
 }
+
+/* ======================================================
+   TABLE BODY
+====================================================== */
 
 tbody tr:nth-child(even){
 
@@ -284,6 +302,28 @@ td{
     font-weight:700;
 }
 
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+    height:10px;
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#cbd5e1;
+
+    border-radius:20px;
+}
+
+::-webkit-scrollbar-track{
+
+    background:#f8fafc;
+}
+
 </style>
 
 </head>
@@ -294,11 +334,13 @@ td{
 
     <div class="card">
 
-        <!-- HEADER -->
+        <!-- =========================================
+             HEADER
+        ========================================== -->
 
         <div class="header">
 
-            <div>
+            <div class="header-left">
 
                 <div class="title">
                     FCY Exposure Dashboard
@@ -317,14 +359,14 @@ td{
 
             <div class="toolbar">
 
-                <!-- WORKSHEET -->
+                <!-- WORKSHEET SELECT -->
 
                 <select id="worksheetSelect"
                         class="control">
 
                 </select>
 
-                <!-- MODE -->
+                <!-- TOGGLE -->
 
                 <div class="toggle">
 
@@ -360,7 +402,9 @@ td{
 
         </div>
 
-        <!-- TABLE -->
+        <!-- =========================================
+             TABLE
+        ========================================== -->
 
         <div class="table-container">
 
@@ -420,7 +464,7 @@ let worksheet;
 let mode = 'branch';
 
 /* ======================================================
-   FORMAT
+   FORMAT NUMBER
 ====================================================== */
 
 function formatNumber(v){
@@ -472,28 +516,66 @@ function loadWorksheetSelector(){
 
 async function getData(){
 
-    const summary =
-        await worksheet.getSummaryDataAsync();
+    let rows = [];
 
-    const cols =
-        summary.columns.map(c => c.fieldName);
+    const reader =
+        await worksheet.getSummaryDataReaderAsync();
 
-    return summary.data.map(r => {
+    const columns =
+        reader.columns.map(c => c.fieldName);
 
-        let obj = {};
+    console.log("COLUMNS:", columns);
 
-        r.forEach((cell, i) => {
+    for(let p=0; p<reader.pageCount; p++){
 
-            obj[cols[i]] = cell;
+        const page =
+            await reader.getPageAsync(p);
 
+        page.data.forEach(r => {
+
+            let obj = {};
+
+            r.forEach((cell, i) => {
+
+                obj[columns[i]] = {
+
+                    value:
+                        cell.value,
+
+                    formattedValue:
+                        cell.formattedValue,
+
+                    nativeValue:
+                        cell.nativeValue
+                };
+            });
+
+            rows.push(obj);
         });
+    }
 
-        return obj;
-    });
+    await reader.releaseAsync();
+
+    console.log("ROWS:", rows);
+
+    return rows;
 }
 
 /* ======================================================
-   PROCESS
+   FIND FIELD
+====================================================== */
+
+function findField(keys, search){
+
+    return keys.find(k =>
+
+        k.toLowerCase()
+         .includes(search)
+    );
+}
+
+/* ======================================================
+   PROCESS DATA
 ====================================================== */
 
 function processData(data){
@@ -505,25 +587,28 @@ function processData(data){
     const keys =
         Object.keys(data[0]);
 
+    console.log("FIELDS:", keys);
+
     const branchField =
-        keys.find(k =>
-            k.toLowerCase().includes('branch')
-        );
+        findField(keys, 'branch');
 
     const currencyField =
-        keys.find(k =>
-            k.toLowerCase().includes('currency')
-        );
+        findField(keys, 'currency');
 
     const fcyField =
-        keys.find(k =>
-            k.toLowerCase().includes('fcy')
-        );
+        findField(keys, 'fcy');
 
     const lkrField =
-        keys.find(k =>
-            k.toLowerCase().includes('lkr')
-        );
+        findField(keys, 'lkr');
+
+    console.log({
+
+        branchField,
+        currencyField,
+        fcyField,
+        lkrField
+
+    });
 
     const grouped = {};
 
@@ -541,13 +626,25 @@ function processData(data){
 
         const fcy =
             d[fcyField]
-            ? Number(d[fcyField].nativeValue || 0)
+            ? Number(
+                d[fcyField].nativeValue ||
+                d[fcyField].value ||
+                0
+            )
             : 0;
 
         const lkr =
             d[lkrField]
-            ? Number(d[lkrField].nativeValue || 0)
+            ? Number(
+                d[lkrField].nativeValue ||
+                d[lkrField].value ||
+                0
+            )
             : 0;
+
+        if(!branch){
+            return;
+        }
 
         const key =
             mode === 'branchCurrency'
@@ -589,7 +686,9 @@ function processData(data){
 function render(rows){
 
     const tbody =
-        document.getElementById('tableBody');
+        document.getElementById(
+            'tableBody'
+        );
 
     tbody.innerHTML = '';
 
@@ -600,13 +699,17 @@ function render(rows){
         .getElementById('currencyHeader')
         .style.display =
 
-        showCurrency ? '' : 'none';
+        showCurrency
+            ? ''
+            : 'none';
 
     document
         .getElementById('fcyHeader')
         .style.display =
 
-        showCurrency ? '' : 'none';
+        showCurrency
+            ? ''
+            : 'none';
 
     rows.forEach(r => {
 
@@ -617,7 +720,9 @@ function render(rows){
 
             tr.innerHTML = `
 
-                <td>${r.branch}</td>
+                <td>
+                    ${r.branch}
+                </td>
 
                 <td>
                     <span class="badge">
@@ -632,17 +737,21 @@ function render(rows){
                 <td class="num">
                     ${formatNumber(r.lkr)}
                 </td>
+
             `;
 
         }else{
 
             tr.innerHTML = `
 
-                <td>${r.branch}</td>
+                <td>
+                    ${r.branch}
+                </td>
 
                 <td class="num">
                     ${formatNumber(r.lkr)}
                 </td>
+
             `;
         }
 
@@ -671,12 +780,15 @@ async function update(){
 
     }catch(error){
 
-        console.error(error);
+        console.error(
+            "UPDATE ERROR:",
+            error
+        );
     }
 }
 
 /* ======================================================
-   MODE UI
+   MODE SWITCH
 ====================================================== */
 
 function setMode(newMode){
@@ -713,67 +825,80 @@ function setMode(newMode){
 
 window.onload = async function(){
 
-    await tableau.extensions.initializeAsync();
+    try{
 
-    dashboard =
-        tableau.extensions
-        .dashboardContent
-        .dashboard;
+        await tableau.extensions.initializeAsync();
 
-    loadWorksheetSelector();
+        dashboard =
+            tableau.extensions
+            .dashboardContent
+            .dashboard;
 
-    /* WORKSHEET CHANGE */
+        loadWorksheetSelector();
 
-    document
-        .getElementById('worksheetSelect')
-        .addEventListener(
+        /* WORKSHEET CHANGE */
 
-            'change',
+        document
+            .getElementById('worksheetSelect')
+            .addEventListener(
 
-            e => {
+                'change',
 
-                worksheet =
-                    dashboard.worksheets.find(
+                e => {
 
-                        w => w.name === e.target.value
-                    );
+                    worksheet =
+                        dashboard.worksheets.find(
 
-                update();
-            }
+                            w =>
+                            w.name === e.target.value
+                        );
+
+                    update();
+                }
+            );
+
+        /* TOP N */
+
+        document
+            .getElementById('topN')
+            .addEventListener(
+
+                'input',
+
+                update
+            );
+
+        /* MODE */
+
+        document
+            .getElementById('branchBtn')
+            .addEventListener(
+
+                'click',
+
+                () => setMode('branch')
+            );
+
+        document
+            .getElementById('branchCurrencyBtn')
+            .addEventListener(
+
+                'click',
+
+                () => setMode('branchCurrency')
+            );
+
+        /* INITIAL LOAD */
+
+        update();
+
+    }catch(error){
+
+        console.error(
+            "INIT ERROR:",
+            error
         );
-
-    /* TOP N */
-
-    document
-        .getElementById('topN')
-        .addEventListener(
-
-            'input',
-
-            update
-        );
-
-    /* MODE */
-
-    document
-        .getElementById('branchBtn')
-        .addEventListener(
-
-            'click',
-
-            () => setMode('branch')
-        );
-
-    document
-        .getElementById('branchCurrencyBtn')
-        .addEventListener(
-
-            'click',
-
-            () => setMode('branchCurrency')
-        );
-
-    update();
+    }
 };
 
 </script>
