@@ -1,3 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8"/>
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0"/>
+
+<title>Top FCY Exposure Table</title>
+
+<!-- TABLEAU -->
+<script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
+
+<style>
+
+/* ======================================================
+   GLOBAL
+====================================================== */
+
+html,
+body{
+
+    margin:0;
+    padding:0;
+
+    width:100%;
+    height:100%;
+
+    overflow:hidden;
+
+    background:#f4f7fb;
+
+    font-family:
+        Inter,
+        Segoe UI,
+        Arial,
+        sans-serif;
+}
+
+/* ======================================================
+   WRAPPER
+====================================================== */
+
+.wrapper{
+
+    width:100%;
+    height:100%;
+
+    padding:18px;
+
+    box-sizing:border-box;
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.card{
+
+    width:100%;
+    height:100%;
+
+    background:white;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    border:
+        1px solid #e2e8f0;
+
+    box-shadow:
+        0 6px 24px rgba(15,23,42,.06);
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.header{
+
+    height:76px;
+
+    padding:0 22px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    border-bottom:
+        1px solid #edf2f7;
+}
+
+.header-left{
+
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+.title{
+
+    font-size:18px;
+    font-weight:700;
+
+    color:#0f172a;
+}
+
+.count{
+
+    font-size:13px;
+
+    color:#64748b;
+}
+
+/* ======================================================
+   TOOLBAR
+====================================================== */
+
+.toolbar{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.toolbar-label{
+
+    font-size:13px;
+    font-weight:600;
+
+    color:#475569;
+}
+
+.top-input{
+
+    width:80px;
+
+    padding:10px 12px;
+
+    border-radius:12px;
+
+    border:
+        1px solid #dbe3ee;
+
+    background:white;
+
+    outline:none;
+
+    font-size:14px;
+    font-weight:600;
+
+    transition:.2s;
+}
+
+.top-input:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:
+        0 0 0 4px rgba(37,99,235,.08);
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.table-container{
+
+    height:calc(100% - 76px);
+
+    overflow:auto;
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+}
+
+/* ======================================================
+   HEADER ROW
+====================================================== */
+
+thead{
+
+    position:sticky;
+    top:0;
+
+    z-index:99;
+}
+
+thead tr{
+
+    background:#f8fafc;
+}
+
+th{
+
+    padding:16px 18px;
+
+    text-align:left;
+
+    font-size:12px;
+    font-weight:700;
+
+    color:#475569;
+
+    text-transform:uppercase;
+    letter-spacing:.04em;
+
+    border-bottom:
+        1px solid #e2e8f0;
+}
+
+/* ======================================================
+   BODY
+====================================================== */
+
+tbody tr{
+
+    transition:background .15s ease;
+}
+
+tbody tr:nth-child(even){
+
+    background:#fafcff;
+}
+
+tbody tr:hover{
+
+    background:#eff6ff;
+}
+
+td{
+
+    padding:15px 18px;
+
+    border-bottom:
+        1px solid #f1f5f9;
+
+    color:#0f172a;
+
+    font-size:14px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* ======================================================
+   NUMERIC
+====================================================== */
+
+.num{
+
+    text-align:right;
+
+    font-weight:600;
+
+    font-variant-numeric:
+        tabular-nums;
+}
+
+/* ======================================================
+   BADGE
+====================================================== */
+
+.badge{
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    background:#eff6ff;
+
+    color:#2563eb;
+
+    font-size:12px;
+    font-weight:700;
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+    height:10px;
+}
+
+::-webkit-scrollbar-track{
+
+    background:#f8fafc;
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#cbd5e1;
+
+    border-radius:20px;
+}
+
+</style>
+
+</head>
+
 <body>
 
 <div class="wrapper">
@@ -10,7 +327,7 @@
 
         <div class="header">
 
-            <div>
+            <div class="header-left">
 
                 <div class="title">
                     Top FCY Exposure Branches
@@ -23,13 +340,13 @@
 
             </div>
 
-            <!-- TOP N CONTROL -->
+            <!-- TOP N -->
 
             <div class="toolbar">
 
-                <label class="toolbar-label">
+                <div class="toolbar-label">
                     Top N
-                </label>
+                </div>
 
                 <input
                     type="number"
@@ -87,55 +404,6 @@
 
 </div>
 
-<style>
-
-/* =========================================
-   TOOLBAR
-========================================= */
-
-.toolbar{
-
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.toolbar-label{
-
-    font-size:13px;
-    color:#475569;
-    font-weight:600;
-}
-
-.top-input{
-
-    width:80px;
-
-    padding:10px 12px;
-
-    border-radius:10px;
-
-    border:
-        1px solid #dbe3ee;
-
-    background:white;
-
-    font-size:14px;
-    font-weight:600;
-
-    outline:none;
-}
-
-.top-input:focus{
-
-    border-color:#3b82f6;
-
-    box-shadow:
-        0 0 0 3px rgba(59,130,246,.1);
-}
-
-</style>
-
 <script>
 
 /* ======================================================
@@ -163,7 +431,7 @@ function formatNumber(v){
 }
 
 /* ======================================================
-   GET TABLEAU DATA
+   GET TABLEAU SUMMARY DATA
 ====================================================== */
 
 async function getSummaryDataTable(ws){
@@ -179,7 +447,8 @@ async function getSummaryDataTable(ws){
 
     for(let i=0; i<reader.pageCount; i++){
 
-        const page = await reader.getPageAsync(i);
+        const page =
+            await reader.getPageAsync(i);
 
         rows = rows.concat(
 
@@ -216,6 +485,12 @@ function processData(data){
     const keys =
         Object.keys(data[0]);
 
+    console.log("TABLEAU FIELDS:", keys);
+
+    /* =========================================
+       DETECT FIELDS
+    ========================================= */
+
     const branchField =
         keys.find(k =>
             k.toLowerCase().includes('branch')
@@ -228,7 +503,7 @@ function processData(data){
 
     const fcyField =
         keys.find(k =>
-            k.toLowerCase() === 'fcy'
+            k.toLowerCase().includes('fcy')
         );
 
     const lkrField =
@@ -236,7 +511,20 @@ function processData(data){
             k.toLowerCase().includes('lkr')
         );
 
+    console.log({
+
+        branchField,
+        currencyField,
+        fcyField,
+        lkrField
+
+    });
+
     let rows = [];
+
+    /* =========================================
+       LOOP ROWS
+    ========================================= */
 
     for(let i=0; i<data.length; i++){
 
@@ -252,23 +540,23 @@ function processData(data){
             ? d[currencyField].formattedValue
             : '';
 
-        const fcy =
-            d[fcyField]
-            ? Number(d[fcyField].nativeValue)
-            : 0;
-
-        const lkr =
-            d[lkrField]
-            ? Number(d[lkrField].nativeValue)
-            : 0;
-
-        /* IGNORE ZERO VALUES */
+        let fcy = 0;
+        let lkr = 0;
 
         if(
-            fcy <= 0 ||
-            lkr <= 0
+            d[fcyField] &&
+            d[fcyField].nativeValue != null
         ){
-            continue;
+            fcy =
+                Number(d[fcyField].nativeValue);
+        }
+
+        if(
+            d[lkrField] &&
+            d[lkrField].nativeValue != null
+        ){
+            lkr =
+                Number(d[lkrField].nativeValue);
         }
 
         rows.push({
@@ -281,11 +569,15 @@ function processData(data){
         });
     }
 
-    /* SORT DESCENDING BY LKR */
+    /* =========================================
+       SORT BY LKR DESC
+    ========================================= */
 
     rows.sort((a,b) => b.lkr - a.lkr);
 
-    /* TOP N */
+    /* =========================================
+       TOP N
+    ========================================= */
 
     const topN =
         Number(
@@ -348,13 +640,27 @@ function render(rows){
 
 async function update(){
 
-    const raw =
-        await getSummaryDataTable(worksheet);
+    try{
 
-    const rows =
-        processData(raw);
+        const raw =
+            await getSummaryDataTable(worksheet);
 
-    render(rows);
+        console.log("RAW DATA:", raw);
+
+        const rows =
+            processData(raw);
+
+        console.log("FINAL ROWS:", rows);
+
+        render(rows);
+
+    }catch(error){
+
+        console.error(
+            "Update Error:",
+            error
+        );
+    }
 }
 
 /* ======================================================
@@ -371,6 +677,11 @@ window.onload = function(){
             tableau.extensions
             .worksheetContent
             .worksheet;
+
+        console.log(
+            "Connected Worksheet:",
+            worksheet.name
+        );
 
         worksheet.addEventListener(
 
@@ -405,3 +716,5 @@ window.onload = function(){
 </script>
 
 </body>
+
+</html>
