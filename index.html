@@ -10,21 +10,14 @@
 
 <title>FCY Exposure Dashboard</title>
 
-<!-- TABLEAU -->
 <script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
 
 <style>
-
-/* ======================================================
-   GLOBAL
-====================================================== */
 
 html,
 body{
 
     margin:0;
-    padding:0;
-
     width:100%;
     height:100%;
 
@@ -35,13 +28,8 @@ body{
     font-family:
         Inter,
         Segoe UI,
-        Arial,
         sans-serif;
 }
-
-/* ======================================================
-   WRAPPER
-====================================================== */
 
 .wrapper{
 
@@ -52,10 +40,6 @@ body{
 
     box-sizing:border-box;
 }
-
-/* ======================================================
-   CARD
-====================================================== */
 
 .card{
 
@@ -68,46 +52,31 @@ body{
 
     overflow:hidden;
 
-    border:
-        1px solid #e2e8f0;
-
     box-shadow:
         0 10px 30px rgba(15,23,42,.06);
+
+    border:
+        1px solid #e2e8f0;
 
     display:flex;
     flex-direction:column;
 }
 
-/* ======================================================
-   HEADER
-====================================================== */
-
 .header{
 
-    padding:18px 22px;
-
-    border-bottom:
-        1px solid #edf2f7;
+    padding:18px 24px;
 
     display:flex;
     justify-content:space-between;
     align-items:center;
 
-    flex-wrap:wrap;
-
-    gap:14px;
-}
-
-.header-left{
-
-    display:flex;
-    flex-direction:column;
-    gap:4px;
+    border-bottom:
+        1px solid #edf2f7;
 }
 
 .title{
 
-    font-size:22px;
+    font-size:24px;
     font-weight:700;
 
     color:#0f172a;
@@ -115,25 +84,18 @@ body{
 
 .subtitle{
 
+    margin-top:4px;
+
     font-size:13px;
 
     color:#64748b;
 }
 
-/* ======================================================
-   TOOLBAR
-====================================================== */
-
 .toolbar{
 
     display:flex;
-    align-items:center;
     gap:12px;
 }
-
-/* ======================================================
-   TOGGLE
-====================================================== */
 
 .toggle{
 
@@ -144,11 +106,9 @@ body{
     border-radius:14px;
 
     padding:4px;
-
-    gap:4px;
 }
 
-.toggle-btn{
+.toggle button{
 
     border:none;
 
@@ -160,15 +120,12 @@ body{
 
     cursor:pointer;
 
-    font-size:13px;
     font-weight:700;
 
     color:#475569;
-
-    transition:.2s;
 }
 
-.toggle-btn.active{
+.toggle button.active{
 
     background:white;
 
@@ -178,44 +135,21 @@ body{
         0 2px 8px rgba(37,99,235,.15);
 }
 
-/* ======================================================
-   INPUT
-====================================================== */
+.topN{
 
-.top-input{
+    width:80px;
 
-    width:90px;
-
-    padding:11px 14px;
+    padding:10px 14px;
 
     border-radius:12px;
 
     border:
         1px solid #dbe3ee;
 
-    background:white;
-
-    outline:none;
-
-    font-size:14px;
     font-weight:700;
-
-    color:#0f172a;
 }
 
-.top-input:focus{
-
-    border-color:#2563eb;
-
-    box-shadow:
-        0 0 0 4px rgba(37,99,235,.08);
-}
-
-/* ======================================================
-   TABLE
-====================================================== */
-
-.table-container{
+.table-wrap{
 
     flex:1;
 
@@ -227,23 +161,9 @@ table{
     width:100%;
 
     border-collapse:collapse;
-
-    table-layout:fixed;
 }
-
-/* ======================================================
-   TABLE HEADER
-====================================================== */
 
 thead{
-
-    position:sticky;
-    top:0;
-
-    z-index:10;
-}
-
-thead tr{
 
     background:#f8fafc;
 }
@@ -257,26 +177,12 @@ th{
     font-size:12px;
     font-weight:800;
 
-    color:#475569;
-
     text-transform:uppercase;
+
+    color:#475569;
 
     border-bottom:
         1px solid #e2e8f0;
-}
-
-/* ======================================================
-   TABLE BODY
-====================================================== */
-
-tbody tr:nth-child(even){
-
-    background:#fbfdff;
-}
-
-tbody tr:hover{
-
-    background:#eef6ff;
 }
 
 td{
@@ -291,23 +197,21 @@ td{
     color:#0f172a;
 }
 
+tbody tr:hover{
+
+    background:#eff6ff;
+}
+
 .num{
 
     text-align:right;
 
     font-weight:700;
-
-    font-variant-numeric:
-        tabular-nums;
 }
-
-/* ======================================================
-   BADGE
-====================================================== */
 
 .badge{
 
-    display:inline-flex;
+    display:inline-block;
 
     padding:6px 12px;
 
@@ -321,19 +225,13 @@ td{
     font-weight:700;
 }
 
-/* ======================================================
-   EMPTY
-====================================================== */
-
 .empty{
 
-    padding:40px;
+    padding:50px;
 
     text-align:center;
 
     color:#94a3b8;
-
-    font-size:14px;
 }
 
 </style>
@@ -346,13 +244,9 @@ td{
 
     <div class="card">
 
-        <!-- =========================================
-             HEADER
-        ========================================== -->
-
         <div class="header">
 
-            <div class="header-left">
+            <div>
 
                 <div class="title">
                     FCY Exposure Dashboard
@@ -367,23 +261,20 @@ td{
 
             </div>
 
-            <!-- TOOLBAR -->
-
             <div class="toolbar">
 
                 <div class="toggle">
 
                     <button
                         id="branchBtn"
-                        class="toggle-btn active">
+                        class="active">
 
                         Branch
 
                     </button>
 
                     <button
-                        id="branchCurrencyBtn"
-                        class="toggle-btn">
+                        id="branchCurrencyBtn">
 
                         Branch + Currency
 
@@ -394,7 +285,7 @@ td{
                 <input
                     type="number"
                     id="topN"
-                    class="top-input"
+                    class="topN"
                     value="10"
                     min="1"
                 />
@@ -403,11 +294,7 @@ td{
 
         </div>
 
-        <!-- =========================================
-             TABLE
-        ========================================== -->
-
-        <div class="table-container">
+        <div class="table-wrap">
 
             <table>
 
@@ -415,25 +302,19 @@ td{
 
                     <tr>
 
-                        <th style="width:40%">
+                        <th>
                             Branch Name
                         </th>
 
-                        <th id="currencyHeader"
-                            style="width:20%">
-
+                        <th id="currencyHeader">
                             Currency
-
                         </th>
 
-                        <th id="fcyHeader"
-                            style="width:20%">
-
+                        <th id="fcyHeader">
                             FCY
-
                         </th>
 
-                        <th style="width:20%">
+                        <th>
                             LKR Mn
                         </th>
 
@@ -441,7 +322,7 @@ td{
 
                 </thead>
 
-                <tbody id="tableBody">
+                <tbody id="tbody">
 
                 </tbody>
 
@@ -455,19 +336,11 @@ td{
 
 <script>
 
-/* ======================================================
-   VARIABLES
-====================================================== */
-
 let worksheet;
 
 let mode = 'branch';
 
-/* ======================================================
-   FORMAT NUMBER
-====================================================== */
-
-function formatNumber(v){
+function format(v){
 
     return new Intl.NumberFormat(
 
@@ -481,159 +354,68 @@ function formatNumber(v){
     ).format(v || 0);
 }
 
-/* ======================================================
-   GET DATA
-====================================================== */
+async function loadData(){
 
-async function getData(){
+    const data =
+        await worksheet.getSummaryDataAsync();
 
-    try{
+    const cols =
+        data.columns.map(c => c.fieldName);
 
-        const summaryData =
-            await worksheet.getSummaryDataAsync();
-
-        console.log("SUMMARY:", summaryData);
-
-        const columns =
-            summaryData.columns.map(c => c.fieldName);
-
-        console.log("COLUMNS:", columns);
-
-        const rows = [];
-
-        summaryData.data.forEach(r => {
-
-            const obj = {};
-
-            r.forEach((cell, i) => {
-
-                obj[columns[i]] = {
-
-                    value:
-                        cell.value,
-
-                    formattedValue:
-                        cell.formattedValue,
-
-                    nativeValue:
-                        cell.nativeValue
-                };
-            });
-
-            rows.push(obj);
-        });
-
-        console.log("ROWS:", rows);
-
-        return rows;
-
-    }catch(error){
-
-        console.error(
-            "DATA ERROR:",
-            error
-        );
-
-        return [];
-    }
-}
-
-/* ======================================================
-   PROCESS DATA
-====================================================== */
-
-function processData(data){
-
-    if(!data.length){
-        return [];
-    }
-
-    const keys =
-        Object.keys(data[0]);
-
-    console.log("AVAILABLE FIELDS:", keys);
-
-    /* =========================================
-       SMART FIELD MATCHING
-    ========================================= */
+    console.log(cols);
 
     const branchField =
-        keys.find(k =>
-            k.toLowerCase().includes('branch')
+        cols.find(c =>
+            c.toLowerCase().includes('branch')
         );
 
     const currencyField =
-        keys.find(k =>
-            k.toLowerCase().includes('currency')
+        cols.find(c =>
+            c.toLowerCase().includes('currency')
         );
 
     const fcyField =
-        keys.find(k =>
-            k.toLowerCase().includes('fcy')
+        cols.find(c =>
+            c.toLowerCase().includes('fcy')
         );
 
     const lkrField =
-        keys.find(k =>
-            k.toLowerCase().includes('lkr')
+        cols.find(c =>
+            c.toLowerCase().includes('lkr')
         );
-
-    console.log({
-
-        branchField,
-        currencyField,
-        fcyField,
-        lkrField
-
-    });
-
-    if(!branchField || !lkrField){
-
-        return [];
-    }
 
     const grouped = {};
 
-    data.forEach(d => {
+    data.data.forEach(r => {
 
         const branch =
-            d[branchField]
-                ? (
-                    d[branchField].formattedValue ??
-                    d[branchField].value ??
-                    ''
-                )
-                : '';
+            r[cols.indexOf(branchField)]
+                ?.formattedValue || '';
 
         const currency =
-            currencyField && d[currencyField]
+            currencyField
                 ? (
-                    d[currencyField].formattedValue ??
-                    d[currencyField].value ??
-                    ''
+                    r[
+                        cols.indexOf(currencyField)
+                    ]?.formattedValue || ''
                 )
                 : '';
 
         const fcy =
-            fcyField && d[fcyField]
+            fcyField
                 ? Number(
-                    d[fcyField].nativeValue ??
-                    d[fcyField].value ??
-                    0
+                    r[
+                        cols.indexOf(fcyField)
+                    ]?.value || 0
                 )
                 : 0;
 
         const lkr =
-            d[lkrField]
-                ? Number(
-                    d[lkrField].nativeValue ??
-                    d[lkrField].value ??
-                    0
-                )
-                : 0;
-
-        if(!branch){
-            return;
-        }
+            Number(
+                r[
+                    cols.indexOf(lkrField)
+                ]?.value || 0
+            );
 
         const key =
 
@@ -661,13 +443,9 @@ function processData(data){
     let rows =
         Object.values(grouped);
 
-    /* SORT */
-
-    rows.sort((a,b) =>
+    rows.sort((a,b)=>
         b.lkr - a.lkr
     );
-
-    /* TOP N */
 
     const topN =
         Number(
@@ -677,19 +455,13 @@ function processData(data){
     rows =
         rows.slice(0, topN);
 
-    return rows;
+    render(rows);
 }
-
-/* ======================================================
-   RENDER
-====================================================== */
 
 function render(rows){
 
     const tbody =
-        document.getElementById(
-            'tableBody'
-        );
+        document.getElementById('tbody');
 
     tbody.innerHTML = '';
 
@@ -699,18 +471,12 @@ function render(rows){
     document
         .getElementById('currencyHeader')
         .style.display =
-
-        showCurrency
-            ? ''
-            : 'none';
+            showCurrency ? '' : 'none';
 
     document
         .getElementById('fcyHeader')
         .style.display =
-
-        showCurrency
-            ? ''
-            : 'none';
+            showCurrency ? '' : 'none';
 
     if(!rows.length){
 
@@ -721,7 +487,7 @@ function render(rows){
                 <td colspan="4"
                     class="empty">
 
-                    No data returned from Tableau
+                    No rows returned
 
                 </td>
 
@@ -741,9 +507,7 @@ function render(rows){
 
             tr.innerHTML = `
 
-                <td>
-                    ${r.branch}
-                </td>
+                <td>${r.branch}</td>
 
                 <td>
                     <span class="badge">
@@ -752,11 +516,11 @@ function render(rows){
                 </td>
 
                 <td class="num">
-                    ${formatNumber(r.fcy)}
+                    ${format(r.fcy)}
                 </td>
 
                 <td class="num">
-                    ${formatNumber(r.lkr)}
+                    ${format(r.lkr)}
                 </td>
 
             `;
@@ -765,16 +529,14 @@ function render(rows){
 
             tr.innerHTML = `
 
-                <td>
-                    ${r.branch}
-                </td>
+                <td>${r.branch}</td>
 
                 <td></td>
 
                 <td></td>
 
                 <td class="num">
-                    ${formatNumber(r.lkr)}
+                    ${format(r.lkr)}
                 </td>
 
             `;
@@ -787,42 +549,9 @@ function render(rows){
         `${rows.length} Rows`;
 }
 
-/* ======================================================
-   UPDATE
-====================================================== */
+function setMode(m){
 
-async function update(){
-
-    try{
-
-        const raw =
-            await getData();
-
-        console.log("RAW:", raw);
-
-        const rows =
-            processData(raw);
-
-        console.log("FINAL:", rows);
-
-        render(rows);
-
-    }catch(error){
-
-        console.error(
-            "UPDATE ERROR:",
-            error
-        );
-    }
-}
-
-/* ======================================================
-   MODE SWITCH
-====================================================== */
-
-function setMode(newMode){
-
-    mode = newMode;
+    mode = m;
 
     document
         .getElementById('branchBtn')
@@ -832,7 +561,7 @@ function setMode(newMode){
         .getElementById('branchCurrencyBtn')
         .classList.remove('active');
 
-    if(mode === 'branch'){
+    if(m === 'branch'){
 
         document
             .getElementById('branchBtn')
@@ -845,73 +574,69 @@ function setMode(newMode){
             .classList.add('active');
     }
 
-    update();
+    loadData();
 }
-
-/* ======================================================
-   INIT
-====================================================== */
 
 window.onload = async function(){
 
-    try{
+    await tableau.extensions.initializeAsync();
 
-        await tableau.extensions.initializeAsync();
+    const dashboard =
+        tableau.extensions
+        .dashboardContent
+        .dashboard;
 
-        worksheet =
-            tableau.extensions
-            .worksheetContent
-            .worksheet;
+    worksheet =
+        dashboard.worksheets.find(
 
-        console.log(
-            "WORKSHEET:",
-            worksheet.name
+            w => w.name === 'FCY_SOURCE'
         );
 
-        worksheet.addEventListener(
+    if(!worksheet){
 
-            tableau.TableauEventType
-                .SummaryDataChanged,
-
-            update
+        alert(
+            'Worksheet FCY_SOURCE not found'
         );
 
-        document
-            .getElementById('topN')
-            .addEventListener(
-
-                'input',
-
-                update
-            );
-
-        document
-            .getElementById('branchBtn')
-            .addEventListener(
-
-                'click',
-
-                () => setMode('branch')
-            );
-
-        document
-            .getElementById('branchCurrencyBtn')
-            .addEventListener(
-
-                'click',
-
-                () => setMode('branchCurrency')
-            );
-
-        update();
-
-    }catch(error){
-
-        console.error(
-            "INIT ERROR:",
-            error
-        );
+        return;
     }
+
+    worksheet.addEventListener(
+
+        tableau.TableauEventType
+            .SummaryDataChanged,
+
+        loadData
+    );
+
+    document
+        .getElementById('topN')
+        .addEventListener(
+
+            'input',
+
+            loadData
+        );
+
+    document
+        .getElementById('branchBtn')
+        .addEventListener(
+
+            'click',
+
+            () => setMode('branch')
+        );
+
+    document
+        .getElementById('branchCurrencyBtn')
+        .addEventListener(
+
+            'click',
+
+            () => setMode('branchCurrency')
+        );
+
+    loadData();
 };
 
 </script>
